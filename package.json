@@ -1,0 +1,30 @@
+{
+  "name": "pv251",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "vite",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hadamove/pv251_project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hadamove/pv251_project/issues"
+  },
+  "homepage": "https://github.com/hadamove/pv251_project#readme",
+  "description": "",
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  },
+  "dependencies": {
+    "@types/echarts": "^4.9.22",
+    "echarts": "^5.5.1"
+  }
+}
