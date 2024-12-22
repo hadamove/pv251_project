@@ -1,7 +1,6 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from "vite";
+import topLevelAwait from "vite-plugin-top-level-await";
 
 export default defineConfig({
-  build: {
-    target: 'esnext', // Optional: Optimize for modern browsers
-  },
+    plugins: [topLevelAwait()],
 });
