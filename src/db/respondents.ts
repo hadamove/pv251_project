@@ -1,6 +1,6 @@
 import initSqlJs from "sql.js";
 
-interface Respondent {
+export interface Respondent {
     id: number;
     salary: number | null;
     country: string | null;
@@ -13,39 +13,57 @@ interface Respondent {
 
 const dbPath = "./data/respondents.db";
 
-export async function fetchRespondents(): Promise<Respondent[]> {
+export async function fetchRespondents(
+    filters?: { year?: number; country_code?: string; language?: string }
+): Promise<Respondent[]> {
     try {
         const response = await fetch(dbPath);
         const buffer = await response.arrayBuffer();
         const SQL = await initSqlJs({
-            locateFile: file => `https://sql.js.org/dist/${file}`
+            locateFile: (file) => `https://sql.js.org/dist/${file}`
         });
         const db = new SQL.Database(new Uint8Array(buffer));
 
-        const query = "SELECT * FROM Respondent";
-        const result = db.exec(query);
+        // Build the query with filters
+        let query = "SELECT * FROM Respondent WHERE 1=1";
+        const params: any[] = [];
 
-        const respondents: Respondent[] = [];
-        if (result.length > 0) {
-            const columns = result[0].columns; // Column names
-            const values = result[0].values; // Data rows
-
-            values.forEach((row) => {
-                const respondent: Respondent = {
-                    id: row[columns.indexOf("id")] as number,
-                    salary: row[columns.indexOf("salary")] as number | null,
-                    country: row[columns.indexOf("country")] as string | null,
-                    years_of_experience: row[columns.indexOf("years_of_experience")] as number | null,
-                    age: row[columns.indexOf("age")] as number | null,
-                    language: row[columns.indexOf("language")] as string | null,
-                    country_code: row[columns.indexOf("country_code")] as string | null,
-                    year: row[columns.indexOf("year")] as number,
-                };
-                respondents.push(respondent);
-            });
+        if (filters?.year !== undefined) {
+            query += " AND year = ?";
+            params.push(filters.year);
+        }
+        if (filters?.country_code) {
+            query += " AND country_code = ?";
+            params.push(filters.country_code);
+        }
+        if (filters?.language) {
+            query += " AND language = ?";
+            params.push(filters.language);
         }
 
+        // Execute the query
+        const statement = db.prepare(query);
+        statement.bind(params);
+
+        const respondents: Respondent[] = [];
+        while (statement.step()) {
+            const row = statement.getAsObject() as Record<string, any>;
+            const respondent: Respondent = {
+                id: row.id as number,
+                salary: row.salary as number | null,
+                country: row.country as string | null,
+                years_of_experience: row.years_of_experience as number | null,
+                age: row.age as number | null,
+                language: row.language as string | null,
+                country_code: row.country_code as string | null,
+                year: row.year as number,
+            };
+            respondents.push(respondent);
+        }
+
+        statement.free();
         db.close();
+
         return respondents;
     } catch (error) {
         console.error("Error loading or querying the database:", error);
