@@ -1,5 +1,5 @@
 import * as echarts from 'echarts';
-import { fetchRespondents, Respondent } from './db/respondents';
+import Papa from 'papaparse';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const chartDom = document.getElementById('main') as HTMLDivElement;
@@ -9,14 +9,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const years = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
     let selectedYear = years[0]; // Default to the earliest year
 
+    // Load CSV data once
+    const csvData = await loadCSVData('data/cleaned/merged.csv');
+    console.log("loaded data of length", csvData.length);
+
     // Render the slider
     renderSlider(years, async (year) => {
         selectedYear = year;
 
         chartInstance.showLoading();
-        // Fetch filtered data for the selected year
+        // Filter data for the selected year
         const t0 = performance.now();
-        const yearData = await fetchRespondents({ year: selectedYear });
+        const yearData = csvData.filter((row) => row.year === year);
         const t1 = performance.now();
         console.log("found data for year", yearData, "of length", yearData.length, "took", t1 - t0, "ms");
 
@@ -30,9 +34,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Fetch and render data for the initial year
-    const initialData = await fetchRespondents({ year: selectedYear });
+    const initialData = csvData.filter((row) => row.year === selectedYear);
     updateChart(chartInstance, initialData, selectedYear);
 });
+
+// Load and parse CSV data
+async function loadCSVData(filePath: string): Promise<Respondent[]> {
+    return new Promise((resolve) => {
+        Papa.parse(filePath, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            dynamicTyping: true, // Automatically infer types
+            complete: (results) => resolve(results.data as Respondent[]),
+            error: (error) => console.log(error),
+        });
+    });
+}
 
 // Render the slider
 function renderSlider(years: number[], onChange: (year: number) => void) {
@@ -103,4 +121,14 @@ function updateChart(chartInstance: echarts.ECharts, yearData: Respondent[], yea
 
     // Update the chart with the new options
     chartInstance.setOption(option, true);
+}
+
+// Define Respondent type
+interface Respondent {
+    year: number;
+    age: number;
+    salary: number;
+    country: string;
+    years_of_experience: number;
+    language: string;
 }
