@@ -6,6 +6,7 @@ export type Respondent = {
     age: number;
     salary: number;
     country: string;
+    country_code: string;
     years_of_experience: number;
     language: string;
 }

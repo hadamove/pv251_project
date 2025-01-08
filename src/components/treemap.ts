@@ -35,7 +35,12 @@ function darkenColor(hex: string, amount: number): string {
   return `#${r.toString(16).padStart(1, '0')}${g.toString(16).padStart(1, '0')}${b.toString(16).padStart(1, '0')}`;
 }
 
-export function renderTreemap(chartInstance: echarts.ECharts, yearData: Respondent[], year: number) {
+export function renderTreemap(
+  chartInstance: echarts.ECharts,
+  yearData: Respondent[],
+  year: number,
+  selectLanguageCallback: (language: string) => void
+) {
   // Aggregate language data
   const languageCounts: Record<string, number> = {};
   yearData.forEach((item) => {
@@ -54,7 +59,7 @@ export function renderTreemap(chartInstance: echarts.ECharts, yearData: Responde
       itemStyle: {
         color,
         borderColor,
-        borderWidth: 2, // Thickness of the outline
+        borderWidth: 1, // Thickness of the outline
       },
       label: {
         color: darkenColor(color, 100),
@@ -63,10 +68,10 @@ export function renderTreemap(chartInstance: echarts.ECharts, yearData: Responde
   });
 
   const option = {
-    title: {
-      text: `Top Favorite Languages - ${year}`,
-      left: 'center',
-    },
+    // title: {
+    //   text: `Top Favorite Languages - ${year}`,
+    //   left: 'center',
+    // },
     tooltip: {
       formatter: (info: any) => `${info.name}: ${info.value}`,
     },
@@ -84,4 +89,11 @@ export function renderTreemap(chartInstance: echarts.ECharts, yearData: Responde
 
   // Update the chart with the new options
   chartInstance.setOption(option, true);
+
+  // Handle click events on the chart
+  chartInstance.on('click', (params: { data: { name: string; }; }) => {
+    if (params?.data?.name) {
+      selectLanguageCallback(params.data.name);
+    }
+  });
 }
