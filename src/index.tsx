@@ -1,44 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
 import { renderTreemap } from './components/treemap';
-import { renderChoropleth } from './components/choropleth';
+import { Choropleth } from './components/choropleth';
 import { loadCSVData } from './data';
 import { createRoot } from 'react-dom/client';
 
 // Dummy components for Treemap and Choropleth
 const Treemap = ({ data, selectedYear, onLanguageChange }: any) => {
+    const chartRef = useRef<echarts.ECharts | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
         console.log('treemap rendered');
-        // Initialize and render the Treemap
-        const chartDom = document.getElementById('main') as HTMLDivElement;
-        const treeMap = echarts.init(chartDom);
+        // Initialize echarts only on first render
+        if (!chartRef.current && containerRef.current) {
+            chartRef.current = echarts.init(containerRef.current);
+        }
 
-        treeMap.showLoading();
-        renderTreemap(treeMap, data, selectedYear, onLanguageChange);
-        treeMap.hideLoading();
+        if (chartRef.current) {
+            chartRef.current.showLoading();
+            renderTreemap(chartRef.current, data, selectedYear, onLanguageChange);
+            chartRef.current.hideLoading();
+        }
     }, [data, selectedYear, onLanguageChange]);
 
-    return <div id="main" style={{ width: '100%', height: '400px' }} />;
-};
-
-const Choropleth = ({ data, selectedYear, selectedLanguage }: any) => {
-    console.log('choropleth rendered');
+    // Cleanup on unmount
     useEffect(() => {
-        // Initialize and render the Choropleth
-        const chartDom = document.getElementById('choropleth') as HTMLDivElement;
-        const choropleth = echarts.init(chartDom);
+        return () => {
+            if (chartRef.current) {
+                chartRef.current.dispose();
+            }
+        };
+    }, []);
 
-        renderChoropleth(choropleth, data, selectedYear, selectedLanguage);
-    }, [data, selectedYear, selectedLanguage]);
-
-    return <div id="choropleth" style={{ width: '100%', height: '400px' }} />;
+    return <div ref={containerRef} style={{ width: '100%', height: '400px' }} />;
 };
 
 // Main App component
 const App = () => {
     console.log('app rendered');
     const [csvData, setCsvData] = useState<any[]>([]);
-    const [filteredData, setFilteredData] = useState<any[]>([]);
     const [selectedYear, setSelectedYear] = useState<number>(2016); // Default year
     const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null); // Default language
 
@@ -53,28 +54,10 @@ const App = () => {
         loadData();
     }, []);
 
-    // Filter data whenever selectedYear or selectedLanguage changes
-    useEffect(() => {
-        const yearData = csvData.filter((row) => row.year === selectedYear);
-        const languageData = selectedLanguage
-            ? yearData.filter((row) => row.language === selectedLanguage)
-            : yearData;
-
-        setFilteredData(languageData);
-    }, [selectedYear, selectedLanguage, csvData]);
-
     // Handle year slider change
     const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const year = Number(event.target.value);
         setSelectedYear(year);
-
-        // Default to the first language if no language is selected
-        if (!selectedLanguage) {
-            const allLanguages = [
-                ...new Set(csvData.filter((row) => row.year === year).map((row) => row.language)),
-            ];
-            setSelectedLanguage(allLanguages[0] || null);
-        }
     };
 
     return (
@@ -98,9 +81,9 @@ const App = () => {
 
             {selectedLanguage && (
                 <Choropleth
-                    data={filteredData}
-                    selectedYear={selectedYear}
-                    selectedLanguage={selectedLanguage}
+                    data={csvData.filter((row) => row.year === selectedYear && row.language === selectedLanguage)}
+                    year={selectedYear}
+                    language={selectedLanguage}
                 />
             )}
         </div>

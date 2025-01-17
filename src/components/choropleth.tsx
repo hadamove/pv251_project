@@ -212,39 +212,60 @@ const IsoCodeToGeoJsonName: Record<string, string> = {
     'ZW': 'Zimbabwe'
 };
 
-export async function renderChoropleth(
-    chartInstance: echarts.ECharts,
-    data: Respondent[],
-    year: number,
-    language: string
-) {
-    // Load the world map GeoJSON if not already registered
-    if (!echarts.getMap('world')) {
-        const worldGeoJson = await fetch('https://cdn.jsdelivr.net/npm/echarts/map/json/world.json').then((res) =>
-            res.json()
-        );
-        echarts.registerMap('world', worldGeoJson);
+import ReactECharts from 'echarts-for-react';
+import React, { useEffect, useState } from 'react';
+
+interface ChoroplethProps {
+    data: Respondent[];
+    year: number;
+    language: string;
+}
+
+// Extract data manipulation into a pure function
+const computeCountryAverageSalaries = (data: Array<{ country_code: string; salary: number }>) => {
+    return data.reduce((acc, row) => {
+        const { country_code, salary } = row;
+        if (!acc[country_code]) {
+            acc[country_code] = { total: 0, count: 0 };
+        }
+        acc[country_code].total += salary;
+        acc[country_code].count += 1;
+        return acc;
+    }, {} as Record<string, { total: number; count: number }>);
+};
+
+const transformToChartData = (
+    countrySalaryData: Record<string, { total: number; count: number }>
+) => {
+    return Object.entries(countrySalaryData).map(([countryCode, { total, count }]) => ({
+        name: IsoCodeToGeoJsonName[countryCode],
+        value: total / count,
+    }));
+};
+
+export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language }) => {
+    const [mapLoaded, setMapLoaded] = useState(false);
+
+    useEffect(() => {
+        const loadMap = async () => {
+            if (!echarts.getMap('world')) {
+                const worldGeoJson = await fetch('https://cdn.jsdelivr.net/npm/echarts/map/json/world.json').then((res) =>
+                    res.json()
+                );
+                echarts.registerMap('world', worldGeoJson);
+            }
+            setMapLoaded(true);
+        };
+        loadMap();
+    }, []);
+
+    if (!mapLoaded) {
+        return <div>Loading map...</div>;
     }
 
-    // Aggregate average salary by country code
-    const countrySalary: Record<string, number> = {};
-    const countryCounts: Record<string, number> = {};
+    const countrySalaryData = computeCountryAverageSalaries(data);
+    const aggregatedData = transformToChartData(countrySalaryData);
 
-    data.forEach((row) => {
-        if (!countrySalary[row.country_code]) {
-            countrySalary[row.country_code] = 0;
-            countryCounts[row.country_code] = 0;
-        }
-        countrySalary[row.country_code] += row.salary;
-        countryCounts[row.country_code]++;
-    });
-
-    const aggregatedData = Object.entries(countrySalary).map(([countryCode, totalSalary]) => ({
-        name: IsoCodeToGeoJsonName[countryCode],
-        value: totalSalary / countryCounts[countryCode], // Calculate average salary
-    }));
-
-    // Configure choropleth chart
     const option = {
         title: {
             text: `Average Salary in ${year} (${language})`,
@@ -282,5 +303,11 @@ export async function renderChoropleth(
         ],
     };
 
-    chartInstance.setOption(option, true);
-}
+    return (
+        <ReactECharts
+            option={option}
+            style={{ height: '400px', width: '100%' }}
+            opts={{ renderer: 'canvas' }}
+        />
+    );
+};
