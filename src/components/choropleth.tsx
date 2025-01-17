@@ -215,12 +215,6 @@ const IsoCodeToGeoJsonName: Record<string, string> = {
 import ReactECharts from 'echarts-for-react';
 import React, { useEffect, useState } from 'react';
 
-interface ChoroplethProps {
-    data: Respondent[];
-    year: number;
-    language: string;
-}
-
 // Extract data manipulation into a pure function
 const computeCountryAverageSalaries = (data: Array<{ country_code: string; salary: number }>) => {
     return data.reduce((acc, row) => {
@@ -242,6 +236,13 @@ const transformToChartData = (
         value: total / count,
     }));
 };
+
+interface ChoroplethProps {
+    data: Respondent[];
+    year: number;
+    language: string;
+}
+
 
 export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language }) => {
     const [mapLoaded, setMapLoaded] = useState(false);

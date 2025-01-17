@@ -1,40 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import * as echarts from 'echarts';
-import { renderTreemap } from './components/treemap';
 import { Choropleth } from './components/choropleth';
+import { Treemap } from './components/treemap';
 import { loadCSVData } from './data';
 import { createRoot } from 'react-dom/client';
-
-// Dummy components for Treemap and Choropleth
-const Treemap = ({ data, selectedYear, onLanguageChange }: any) => {
-    const chartRef = useRef<echarts.ECharts | null>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        console.log('treemap rendered');
-        // Initialize echarts only on first render
-        if (!chartRef.current && containerRef.current) {
-            chartRef.current = echarts.init(containerRef.current);
-        }
-
-        if (chartRef.current) {
-            chartRef.current.showLoading();
-            renderTreemap(chartRef.current, data, selectedYear, onLanguageChange);
-            chartRef.current.hideLoading();
-        }
-    }, [data, selectedYear, onLanguageChange]);
-
-    // Cleanup on unmount
-    useEffect(() => {
-        return () => {
-            if (chartRef.current) {
-                chartRef.current.dispose();
-            }
-        };
-    }, []);
-
-    return <div ref={containerRef} style={{ width: '100%', height: '400px' }} />;
-};
 
 // Main App component
 const App = () => {
@@ -61,30 +29,35 @@ const App = () => {
     };
 
     return (
-        <div className="w-full max-w-7xl">
-            <div>
+        <div className="w-full max-w-6xl mx-auto px-4 py-8">
+            <div className="flex items-center justify-center gap-4 mb-8">
                 <input
                     type="range"
                     min={Math.min(...years)}
                     max={Math.max(...years)}
                     value={selectedYear}
                     onChange={handleSliderChange}
+                    className="w-64"
                 />
-                <span id="selected-year">{selectedYear}</span>
+                <span id="selected-year" className="text-lg font-medium">{selectedYear}</span>
             </div>
 
-            <Treemap
-                data={csvData.filter((row) => row.year === selectedYear)}
-                selectedYear={selectedYear}
-                onLanguageChange={setSelectedLanguage}
-            />
+            <div className="mb-8">
+                <Treemap
+                    data={csvData.filter((row) => row.year === selectedYear)}
+                    year={selectedYear}
+                    onLanguageSelect={setSelectedLanguage}
+                />
+            </div>
 
             {selectedLanguage && (
-                <Choropleth
-                    data={csvData.filter((row) => row.year === selectedYear && row.language === selectedLanguage)}
-                    year={selectedYear}
-                    language={selectedLanguage}
-                />
+                <div className="mb-8">
+                    <Choropleth
+                        data={csvData.filter((row) => row.year === selectedYear && row.language === selectedLanguage)}
+                        year={selectedYear}
+                        language={selectedLanguage}
+                    />
+                </div>
             )}
         </div>
     );
