@@ -1,40 +1,8 @@
 import React from 'react';
 import ReactECharts from 'echarts-for-react';
 import { Respondent } from '../data';
+import { darkenColor, getColorForLanguage } from './utils';
 
-const getColorForLanguage = (language: string): string => {
-    const staticColorMapping: Record<string, string> = {
-        'Swift': '#ffd195',
-        'Objective-C': '#aeebc0',
-        'TypeScript': '#94b1ff',
-        'Assembly': '#aeaeae',
-        'PowerShell': '#a2c6b9',
-        'C#': '#abffaf',
-        'JavaScript': '#fff2ac',
-        'Ruby': '#ff7474',
-        'Scala': '#d58e8e',
-        'PHP': '#c7bbda',
-        'VBA': '#eaaeeb',
-        'Java': '#ffabab',
-        'R': '#d7ebae',
-        'Python': '#93b7e7',
-        'Kotlin': '#bcaeeb',
-        'Go': '#7bbdf0',
-        'Rust': '#ffa495',
-        'Dart': '#a4b5e1',
-        'C++': '#eaccb1',
-        'C': '#d8d8d8',
-    };
-
-    return staticColorMapping[language] || '#CCCCCC'; // Fallback to gray for unknown languages
-}
-
-const darkenColor = (hex: string, amount: number): string => {
-    const r = Math.max(0, parseInt(hex.slice(1, 3), 16) - amount);
-    const g = Math.max(0, parseInt(hex.slice(3, 5), 16) - amount);
-    const b = Math.max(0, parseInt(hex.slice(5, 7), 16) - amount);
-    return `#${r.toString(16).padStart(1, '0')}${g.toString(16).padStart(1, '0')}${b.toString(16).padStart(1, '0')}`;
-}
 
 interface TreemapProps {
     data: Respondent[];
@@ -44,29 +12,8 @@ interface TreemapProps {
 
 export const Treemap: React.FC<TreemapProps> = ({ data, year, onLanguageSelect }) => {
     const getOption = () => {
-        const languageCounts: Record<string, number> = {};
-        data.forEach((item) => {
-            const lang = item.language || 'Unknown';
-            if (!languageCounts[lang]) languageCounts[lang] = 0;
-            languageCounts[lang]++;
-        });
-
-        const treemapData = Object.entries(languageCounts).map(([name, value]) => {
-            const color = getColorForLanguage(name);
-            const borderColor = darkenColor(color, 20);
-            return {
-                name,
-                value,
-                itemStyle: {
-                    color,
-                    borderColor,
-                    borderWidth: 1,
-                },
-                label: {
-                    color: darkenColor(color, 100),
-                },
-            };
-        });
+        const languageCounts = computeLanguageCounts(data);
+        const treemapData = transformToTreemapData(languageCounts);
 
         return {
             tooltip: {
@@ -100,4 +47,33 @@ export const Treemap: React.FC<TreemapProps> = ({ data, year, onLanguageSelect }
             onEvents={onEvents}
         />
     );
-}; 
+};
+
+const computeLanguageCounts = (data: Respondent[]): Record<string, number> => {
+    const languageCounts: Record<string, number> = {};
+    data.forEach((item) => {
+        const lang = item.language || 'Unknown';
+        if (!languageCounts[lang]) languageCounts[lang] = 0;
+        languageCounts[lang]++;
+    });
+    return languageCounts;
+};
+
+const transformToTreemapData = (languageCounts: Record<string, number>) => {
+    return Object.entries(languageCounts).map(([name, value]) => {
+        const color = getColorForLanguage(name);
+        const borderColor = darkenColor(color, 20);
+        return {
+            name,
+            value,
+            itemStyle: {
+                color,
+                borderColor,
+                borderWidth: 1,
+            },
+            label: {
+                color: darkenColor(color, 100),
+            },
+        };
+    });
+};
