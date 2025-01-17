@@ -1,4 +1,3 @@
-
 import Papa from 'papaparse';
 
 export type Respondent = {
@@ -9,7 +8,7 @@ export type Respondent = {
     country_code: string;
     years_of_experience: number;
     language: string;
-}
+};
 
 export const loadCSVData = async (filePath: string): Promise<Respondent[]> => {
     try {

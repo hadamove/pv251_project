@@ -36,12 +36,11 @@ function darkenColor(hex: string, amount: number): string {
 }
 
 export function renderTreemap(
-  chartInstance: echarts.ECharts,
+  treeMap: echarts.ECharts,
   yearData: Respondent[],
   year: number,
   selectLanguageCallback: (language: string) => void
 ) {
-  // Aggregate language data
   const languageCounts: Record<string, number> = {};
   yearData.forEach((item) => {
     const lang = item.language || 'Unknown';
@@ -49,17 +48,16 @@ export function renderTreemap(
     languageCounts[lang]++;
   });
 
-  // Map data into treemap format with consistent colors
   const treemapData = Object.entries(languageCounts).map(([name, value]) => {
     const color = getColorForLanguage(name);
-    const borderColor = darkenColor(color, 20); // Slightly darker border
+    const borderColor = darkenColor(color, 20);
     return {
       name,
       value,
       itemStyle: {
         color,
         borderColor,
-        borderWidth: 1, // Thickness of the outline
+        borderWidth: 1,
       },
       label: {
         color: darkenColor(color, 100),
@@ -68,10 +66,6 @@ export function renderTreemap(
   });
 
   const option = {
-    // title: {
-    //   text: `Top Favorite Languages - ${year}`,
-    //   left: 'center',
-    // },
     tooltip: {
       formatter: (info: any) => `${info.name}: ${info.value}`,
     },
@@ -87,11 +81,8 @@ export function renderTreemap(
     ],
   };
 
-  // Update the chart with the new options
-  chartInstance.setOption(option, true);
-
-  // Handle click events on the chart
-  chartInstance.on('click', (params: { data: { name: string; }; }) => {
+  treeMap.setOption(option, true);
+  treeMap.on('click', (params: { data: { name: string; }; }) => {
     if (params?.data?.name) {
       selectLanguageCallback(params.data.name);
     }

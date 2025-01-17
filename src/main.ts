@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         treeMap.showLoading();
 
         // Filter data for the selected year & update the chart with the new data
-        const yearData = csvData.filter((row) => row.year === year);
         renderTreemap(treeMap, initialData, selectedYear, (language) => {
             selectedLanguage = language; // Update selected language
             const filteredData = csvData.filter(
