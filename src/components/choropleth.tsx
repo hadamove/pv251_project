@@ -53,6 +53,11 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language }) 
                 name: 'Average Salary',
                 type: 'map',
                 map: 'world',
+                roam: true, // Enable zooming and panning
+                scaleLimit: {
+                    min: 1,
+                    max: 10
+                },
                 emphasis: {
                     label: {
                         show: true,
