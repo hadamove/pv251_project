@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { Respondent } from '../data';
-import { getColorForLanguage, lightenColor } from './utils';
+import { darkenColor, getColorForLanguage, lightenColor } from './utils';
 
 interface BarChartProps {
     data: Respondent[];
@@ -117,8 +117,8 @@ export const SalaryBoxplotChart: React.FC<BarChartProps> = ({ data, year, langua
                 b.stats.max
             ]),
             itemStyle: {
-                color: lightenColor(color, 50),
-                borderColor: color
+                color: darkenColor(color, 50),
+                borderColor: darkenColor(color, 100)
             },
             emphasis: {
                 itemStyle: {
@@ -126,7 +126,8 @@ export const SalaryBoxplotChart: React.FC<BarChartProps> = ({ data, year, langua
                     shadowBlur: 5,
                     shadowColor: 'rgba(0,0,0,0.2)'
                 }
-            }
+            },
+            animationDurationUpdate: 200
         }],
         grid: {
             containLabel: true,

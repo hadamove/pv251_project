@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { Choropleth } from './components/choropleth';
@@ -14,9 +14,14 @@ const App = () => {
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null); // Default country
 
     // If the country is already selected, unselect it
-    const onCountrySelect = (country: string) => {
-        setSelectedCountry(country === selectedCountry ? null : country);
-    };
+    const onCountrySelect = useMemo(() => (country: string) => {
+        setSelectedCountry(prev => country === prev ? null : country);
+    }, []);
+
+    // If the language is already selected, unselect it
+    const onLanguageSelect = useMemo(() => (language: string) => {
+        setSelectedLanguage(prev => language === prev ? null : language);
+    }, []);
 
     const years = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]; // Hardcoded years
 
@@ -53,7 +58,8 @@ const App = () => {
                 <Treemap
                     data={csvData.filter((row) => row.year === selectedYear)}
                     year={selectedYear}
-                    onLanguageSelect={setSelectedLanguage}
+                    onLanguageSelect={onLanguageSelect}
+                    selectedLanguage={selectedLanguage}
                 />
             </div>
 

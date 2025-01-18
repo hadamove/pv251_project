@@ -8,9 +8,10 @@ interface TreemapProps {
     data: Respondent[];
     year: number;
     onLanguageSelect: (language: string) => void;
+    selectedLanguage: string | null;
 }
 
-export const Treemap: React.FC<TreemapProps> = ({ data, year, onLanguageSelect }) => {
+export const Treemap: React.FC<TreemapProps> = ({ data, year, onLanguageSelect, selectedLanguage }) => {
     const languageCounts = useMemo(() => computeLanguageCounts(data), [data]);
     const totalCount = useMemo(() =>
         Object.values(languageCounts).reduce((a, b) => a + b, 0),
@@ -29,7 +30,7 @@ export const Treemap: React.FC<TreemapProps> = ({ data, year, onLanguageSelect }
         series: [
             {
                 type: 'treemap',
-                data: transformToTreemapData(languageCounts, totalCount),
+                data: transformToTreemapData(languageCounts, totalCount, selectedLanguage),
                 label: {
                     show: true,
                     formatter: (params: any) => {
@@ -41,10 +42,11 @@ export const Treemap: React.FC<TreemapProps> = ({ data, year, onLanguageSelect }
                 nodeClick: false,
                 breadcrumb: {
                     show: false
-                }
+                },
+                animationDurationUpdate: 200
             },
         ],
-    }), [languageCounts, totalCount]);
+    }), [languageCounts, totalCount, selectedLanguage]);
 
     const onEvents = useMemo(() => ({
         click: (params: { data: { name: string } }) => {
@@ -77,7 +79,7 @@ const computeLanguageCounts = (data: Respondent[]): Record<string, number> => {
     return languageCounts;
 };
 
-const transformToTreemapData = (languageCounts: Record<string, number>, totalCount: number) => {
+const transformToTreemapData = (languageCounts: Record<string, number>, totalCount: number, selectedLanguage: string | null) => {
     return Object.entries(languageCounts).map(([name, value]) => {
         const color = getColorForLanguage(name);
         const borderColor = darkenColor(color, 20);
@@ -86,8 +88,8 @@ const transformToTreemapData = (languageCounts: Record<string, number>, totalCou
             value,
             itemStyle: {
                 color,
-                borderColor,
-                borderWidth: 1,
+                borderColor: selectedLanguage === name ? darkenColor(color, 100) : borderColor,
+                borderWidth: selectedLanguage === name ? 3 : 1,
             },
             label: {
                 color: darkenColor(color, 100),
