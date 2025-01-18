@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { Respondent } from '../data';
 import { darkenColor, getColorForLanguage } from './utils';
@@ -11,40 +11,55 @@ interface TreemapProps {
 }
 
 export const Treemap: React.FC<TreemapProps> = ({ data, year, onLanguageSelect }) => {
-    const getOption = () => {
-        const languageCounts = computeLanguageCounts(data);
-        const treemapData = transformToTreemapData(languageCounts);
+    const languageCounts = useMemo(() => computeLanguageCounts(data), [data]);
+    const totalCount = useMemo(() =>
+        Object.values(languageCounts).reduce((a, b) => a + b, 0),
+        [languageCounts]
+    );
 
-        return {
-            tooltip: {
-                formatter: (info: any) => `${info.name}: ${info.value}`,
+    // This is memoized to prevent completely re-rendering the treemap when the data changes
+    // The component would work without it, but it would be less efficient and animations would not work
+    const option = useMemo(() => ({
+        tooltip: {
+            formatter: (info: any) => {
+                const percentage = ((info.value / totalCount) * 100).toFixed(1);
+                return `${info.name}: ${info.value} (${percentage}%)`;
             },
-            series: [
-                {
-                    type: 'treemap',
-                    data: treemapData,
-                    label: {
-                        show: true,
-                        formatter: '{b}',
+        },
+        series: [
+            {
+                type: 'treemap',
+                data: transformToTreemapData(languageCounts, totalCount),
+                label: {
+                    show: true,
+                    formatter: (params: any) => {
+                        const percentage = ((params.value / totalCount) * 100).toFixed(1);
+                        return `${params.name}\n${percentage}%`;
                     },
                 },
-            ],
-        };
-    };
+                roam: false,
+                nodeClick: false,
+                breadcrumb: {
+                    show: false
+                }
+            },
+        ],
+    }), [languageCounts, totalCount]);
 
-    const onEvents = {
+    const onEvents = useMemo(() => ({
         click: (params: { data: { name: string } }) => {
             if (params?.data?.name) {
                 onLanguageSelect(params.data.name);
             }
         },
-    };
+    }), [onLanguageSelect]);
 
     return (
         <ReactECharts
-            option={getOption()}
+            option={option}
             style={{ height: '400px', width: '100%' }}
             onEvents={onEvents}
+        // notMerge={true}
         />
     );
 };
@@ -59,7 +74,7 @@ const computeLanguageCounts = (data: Respondent[]): Record<string, number> => {
     return languageCounts;
 };
 
-const transformToTreemapData = (languageCounts: Record<string, number>) => {
+const transformToTreemapData = (languageCounts: Record<string, number>, totalCount: number) => {
     return Object.entries(languageCounts).map(([name, value]) => {
         const color = getColorForLanguage(name);
         const borderColor = darkenColor(color, 20);
