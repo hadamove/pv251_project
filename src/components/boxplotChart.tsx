@@ -10,12 +10,38 @@ interface BarChartProps {
     country: string;
 }
 
+export const SalaryBoxplotChart: React.FC<BarChartProps> = ({ data, year, language, country }) => {
+    const binData = useMemo(() => {
+        const maxExperience = Math.max(...data.map(d => d.years_of_experience));
+        const bins = createBins(maxExperience);
+        return fillBinsWithData(data, bins);
+    }, [data]);
+
+    const color = getColorForLanguage(language);
+    const option = useMemo(() => createChartOption(binData, color, language, year, country),
+        [binData, color, language, year, country]);
+
+    return (
+        <ReactECharts
+            option={option}
+            style={{ height: '400px', width: '100%' }}
+            notMerge={true}
+        />
+    );
+};
+
 interface BoxPlotData {
     min: number;
     q1: number;
     median: number;
     q3: number;
     max: number;
+}
+
+interface BinData {
+    range: string;
+    stats: BoxPlotData;
+    count: number;
 }
 
 const calculateBoxPlotData = (values: number[]): BoxPlotData => {
@@ -37,111 +63,94 @@ const calculateBoxPlotData = (values: number[]): BoxPlotData => {
     };
 };
 
-export const SalaryBoxplotChart: React.FC<BarChartProps> = ({ data, year, language, country }) => {
-    const binData = useMemo(() => {
-        // Create 10 bins for years of experience
-        const bins: { min: number; max: number; salaries: number[] }[] = [];
-        const maxExperience = Math.max(...data.map(d => d.years_of_experience));
-        const binSize = Math.ceil(maxExperience / 10);
+const createBins = (maxExperience: number): { min: number; max: number; salaries: number[] }[] => {
+    const binSize = Math.ceil(maxExperience / 10);
+    return Array.from({ length: 10 }, (_, i) => ({
+        min: i * binSize,
+        max: (i + 1) * binSize,
+        salaries: []
+    }));
+};
 
-        // Initialize bins
-        for (let i = 0; i < 10; i++) {
-            bins.push({
-                min: i * binSize,
-                max: (i + 1) * binSize,
-                salaries: []
-            });
+const fillBinsWithData = (data: Respondent[], bins: { min: number; max: number; salaries: number[] }[]): BinData[] => {
+    const binSize = bins[0].max - bins[0].min;
+
+    data.forEach(d => {
+        const binIndex = Math.min(Math.floor(d.years_of_experience / binSize), 9);
+        bins[binIndex].salaries.push(d.salary);
+    });
+
+    return bins
+        .map(bin => ({
+            range: `${bin.min}-${bin.max}`,
+            stats: calculateBoxPlotData(bin.salaries),
+            count: bin.salaries.length
+        }))
+        .filter(bin => bin.count > 0);
+};
+
+const createChartOption = (binData: BinData[], color: string, language: string, year: number, country: string) => ({
+    title: {
+        text: `Salary Distribution by Years of Experience (${language}, ${year}, ${country})`,
+        left: 'center'
+    },
+    tooltip: {
+        trigger: 'item',
+        formatter: (params: any) => {
+            if (params.seriesType === 'boxplot') {
+                return `Years of Experience: ${params.name}<br/>` +
+                    `Max: $${params.data[5].toLocaleString()}<br/>` +
+                    `Q₀.₇₅: $${params.data[4].toLocaleString()}<br/>` +
+                    `Med: $${params.data[3].toLocaleString()}<br/>` +
+                    `Q₀.₂₅: $${params.data[2].toLocaleString()}<br/>` +
+                    `Min: $${params.data[1].toLocaleString()}<br/>` +
+                    `n: ${binData[params.dataIndex].count}`;
+            }
+            return '';
         }
-
-        // Fill bins with salary data
-        data.forEach(d => {
-            const binIndex = Math.min(Math.floor(d.years_of_experience / binSize), 9);
-            bins[binIndex].salaries.push(d.salary);
-        });
-
-        // Calculate statistics for each bin
-        return bins
-            .map(bin => ({
-                range: `${bin.min}-${bin.max}`,
-                stats: calculateBoxPlotData(bin.salaries),
-                count: bin.salaries.length
-            }))
-            .filter(bin => bin.count > 0); // Remove empty bins
-    }, [data]);
-
-    const color = getColorForLanguage(language);
-
-    const option = useMemo(() => ({
-        title: {
-            text: `Salary Distribution by Years of Experience (${language}, ${year}, ${country})`,
-            left: 'center'
+    },
+    xAxis: {
+        type: 'category',
+        data: binData.map(b => b.range),
+        name: 'Years of Experience',
+        axisLabel: {
+            rotate: 45
+        }
+    },
+    yAxis: {
+        type: 'value',
+        name: 'Salary ($)',
+        axisLabel: {
+            formatter: (value: number) => `$${value.toLocaleString()}`
+        }
+    },
+    series: [{
+        name: 'Salary Distribution',
+        type: 'boxplot',
+        data: binData.map(b => [
+            b.stats.min,
+            b.stats.q1,
+            b.stats.median,
+            b.stats.q3,
+            b.stats.max
+        ]),
+        itemStyle: {
+            color: darkenColor(color, 50),
+            borderColor: darkenColor(color, 100)
         },
-        tooltip: {
-            trigger: 'item',
-            formatter: (params: any) => {
-                if (params.seriesType === 'boxplot') {
-                    return `Years of Experience: ${params.name}<br/>` +
-                        `Max: $${params.data[5].toLocaleString()}<br/>` +
-                        `Q₀.₇₅: $${params.data[4].toLocaleString()}<br/>` +
-                        `Med: $${params.data[3].toLocaleString()}<br/>` +
-                        `Q₀.₂₅: $${params.data[2].toLocaleString()}<br/>` +
-                        `Min: $${params.data[1].toLocaleString()}<br/>` +
-                        `n: ${binData[params.dataIndex].count}`;
-                }
-                return '';
-            }
-        },
-        xAxis: {
-            type: 'category',
-            data: binData.map(b => b.range),
-            name: 'Years of Experience',
-            axisLabel: {
-                rotate: 45
-            }
-        },
-        yAxis: {
-            type: 'value',
-            name: 'Salary ($)',
-            axisLabel: {
-                formatter: (value: number) => `$${value.toLocaleString()}`
-            }
-        },
-        series: [{
-            name: 'Salary Distribution',
-            type: 'boxplot',
-            data: binData.map(b => [
-                b.stats.min,
-                b.stats.q1,
-                b.stats.median,
-                b.stats.q3,
-                b.stats.max
-            ]),
+        emphasis: {
             itemStyle: {
-                color: darkenColor(color, 50),
-                borderColor: darkenColor(color, 100)
-            },
-            emphasis: {
-                itemStyle: {
-                    borderWidth: 2,
-                    shadowBlur: 5,
-                    shadowColor: 'rgba(0,0,0,0.2)'
-                }
-            },
-            animationDurationUpdate: 200
-        }],
-        grid: {
-            containLabel: true,
-            left: '5%',
-            right: '5%',
-            bottom: '15%'
-        }
-    }), [binData, color, language, year]);
-
-    return (
-        <ReactECharts
-            option={option}
-            style={{ height: '400px', width: '100%' }}
-            notMerge={true}
-        />
-    );
-}; 
+                borderWidth: 2,
+                shadowBlur: 5,
+                shadowColor: 'rgba(0,0,0,0.2)'
+            }
+        },
+        animationDurationUpdate: 200
+    }],
+    grid: {
+        containLabel: true,
+        left: '5%',
+        right: '5%',
+        bottom: '15%'
+    }
+});
