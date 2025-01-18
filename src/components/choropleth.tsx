@@ -10,9 +10,10 @@ interface ChoroplethProps {
     data: Respondent[];
     year: number;
     language: string;
+    onCountrySelect: (country: string) => void;
 }
 
-export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language }) => {
+export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language, onCountrySelect }) => {
     const [mapLoaded, setMapLoaded] = useState(false);
 
     useEffect(() => {
@@ -83,11 +84,20 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language }) 
         ],
     };
 
+    const onEvents = {
+        click: (params: { data: { name: string } }) => {
+            if (params?.data?.name) {
+                onCountrySelect(params.data.name);
+            }
+        },
+    };
+
     return (
         <ReactECharts
             option={option}
             style={{ height: '400px', width: '100%' }}
             opts={{ renderer: 'canvas' }}
+            onEvents={onEvents}
         />
     );
 };

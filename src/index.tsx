@@ -1,15 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+
 import { Choropleth } from './components/choropleth';
 import { Treemap } from './components/treemap';
+import { SalaryBoxplotChart } from './components/boxplotChart';
 import { loadCSVData } from './data';
-import { createRoot } from 'react-dom/client';
 
 // Main App component
 const App = () => {
-    console.log('app rendered');
     const [csvData, setCsvData] = useState<any[]>([]);
     const [selectedYear, setSelectedYear] = useState<number>(2016); // Default year
     const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null); // Default language
+    const [selectedCountry, setSelectedCountry] = useState<string | null>(null); // Default country
+
+    // If the country is already selected, unselect it
+    const onCountrySelect = (country: string) => {
+        setSelectedCountry(country === selectedCountry ? null : country);
+    };
 
     const years = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]; // Hardcoded years
 
@@ -51,11 +58,25 @@ const App = () => {
             </div>
 
             {selectedLanguage && (
+                <>
+                    <div className="mb-8">
+                        <Choropleth
+                            data={csvData.filter((row) => row.year === selectedYear && row.language === selectedLanguage)}
+                            year={selectedYear}
+                            language={selectedLanguage}
+                            onCountrySelect={onCountrySelect}
+                        />
+                    </div>
+                </>
+            )}
+
+            {selectedLanguage && selectedCountry && (
                 <div className="mb-8">
-                    <Choropleth
-                        data={csvData.filter((row) => row.year === selectedYear && row.language === selectedLanguage)}
+                    <SalaryBoxplotChart
+                        data={csvData.filter((row) => row.year === selectedYear && row.language === selectedLanguage && row.country === selectedCountry)}
                         year={selectedYear}
                         language={selectedLanguage}
+                        country={selectedCountry}
                     />
                 </div>
             )}
