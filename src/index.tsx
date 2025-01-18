@@ -4,11 +4,12 @@ import { createRoot } from 'react-dom/client';
 import { Choropleth } from './components/choropleth';
 import { Treemap } from './components/treemap';
 import { SalaryBoxplotChart } from './components/boxplotChart';
-import { loadCSVData } from './data';
+import { loadCSVData, Respondent } from './data';
+import { geoJsonNameToIsoCode } from './components/utils';
 
 // Main App component
 const App = () => {
-    const [csvData, setCsvData] = useState<any[]>([]);
+    const [csvData, setCsvData] = useState<Respondent[]>([]);
     const [selectedYear, setSelectedYear] = useState<number>(2016); // Default year
     const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null); // Default language
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null); // Default country
@@ -79,7 +80,7 @@ const App = () => {
             {selectedLanguage && selectedCountry && (
                 <div className="mb-8">
                     <SalaryBoxplotChart
-                        data={csvData.filter((row) => row.year === selectedYear && row.language === selectedLanguage && row.country === selectedCountry)}
+                        data={csvData.filter((row) => row.year === selectedYear && row.language === selectedLanguage && row.country_code === geoJsonNameToIsoCode(selectedCountry))}
                         year={selectedYear}
                         language={selectedLanguage}
                         country={selectedCountry}

@@ -1,5 +1,6 @@
 
 
+// Each programming language gets a unique color somewhat representative of the language's logo
 export const getColorForLanguage = (language: string): string => {
     const staticColorMapping: Record<string, string> = {
         'Swift': '#ffd195',
@@ -41,6 +42,9 @@ export const lightenColor = (hex: string, amount: number): string => {
     return `#${r.toString(16).padStart(1, '0')}${g.toString(16).padStart(1, '0')}${b.toString(16).padStart(1, '0')}`;
 }
 
+// Geojson uses different country names than our csv file
+// But we can use country iso codes to map them to names used by geojson
+// The mapping was created by `get_country_code` in `preprocess.ipynb`
 export const isoCodeToGeoJsonName: Record<string, string> = {
     'SO': 'Somalia',
     'LI': 'Liechtenstein',
@@ -251,3 +255,7 @@ export const isoCodeToGeoJsonName: Record<string, string> = {
     'ZM': 'Zambia',
     'ZW': 'Zimbabwe'
 };
+
+// Reverse mapping from geojson name to iso code
+export const geoJsonNameToIsoCode = (name: string): string | undefined =>
+    Object.keys(isoCodeToGeoJsonName).find(key => isoCodeToGeoJsonName[key] === name);

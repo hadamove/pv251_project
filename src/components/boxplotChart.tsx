@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { Respondent } from '../data';
-import { darkenColor, getColorForLanguage, lightenColor } from './utils';
+import { darkenColor, getColorForLanguage } from './utils';
 
 interface BarChartProps {
     data: Respondent[];
