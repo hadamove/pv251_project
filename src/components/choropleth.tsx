@@ -3,7 +3,7 @@ import { Respondent } from '../data';
 
 import ReactECharts from 'echarts-for-react';
 import React, { useEffect, useState } from 'react';
-import { isoCodeToGeoJsonName } from './utils';
+import { darkenColor, getColorForLanguage, isoCodeToGeoJsonName, lightenColor } from './utils';
 
 
 interface ChoroplethProps {
@@ -24,7 +24,8 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language }) 
     }
 
     const countrySalaryData = computeCountryAverageSalaries(data);
-    const aggregatedData = transformToChartData(countrySalaryData);
+    const chartData = transformToChartData(countrySalaryData);
+    const countryColor = getColorForLanguage(language);
 
     const option = {
         title: {
@@ -40,12 +41,12 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language }) 
         },
         visualMap: {
             min: 0,
-            max: Math.max(...aggregatedData.map((d) => d.value)) || 100000,
-            text: ['High', 'Low'],
+            max: 100000,
+            text: ['100,000+', '0'],
             realtime: false,
             calculable: true,
             inRange: {
-                color: ['#e0f7fa', '#006064'], // Gradient from light to dark
+                color: [lightenColor(countryColor, 100), darkenColor(countryColor, 100)],
             },
         },
         series: [
@@ -63,7 +64,7 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language }) 
                         show: true,
                     },
                 },
-                data: aggregatedData,
+                data: chartData,
             },
         ],
     };
