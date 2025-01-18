@@ -59,7 +59,10 @@ export const Treemap: React.FC<TreemapProps> = ({ data, year, onLanguageSelect }
             option={option}
             style={{ height: '400px', width: '100%' }}
             onEvents={onEvents}
-        // notMerge={true}
+            showLoading={data.length === 0}
+            loadingOption={{
+                text: 'Loading csv data (this only happens once)...',
+            }}
         />
     );
 };

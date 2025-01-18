@@ -20,7 +20,12 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language }) 
     }, []);
 
     if (!mapLoaded) {
-        return <div>Loading map...</div>;
+        return (
+            <div className="flex items-center justify-center h-[400px]">
+                <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                <span className="ml-3 text-gray-600">Loading map...</span>
+            </div>
+        );
     }
 
     const countrySalaryData = computeCountryAverageSalaries(data);
@@ -42,7 +47,7 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language }) 
         visualMap: {
             min: 0,
             max: 100000,
-            text: ['100,000+', '0'],
+            text: ['$100,000+', '$0'],
             realtime: false,
             calculable: true,
             inRange: {
