@@ -2,7 +2,7 @@ import * as echarts from 'echarts';
 import { Respondent } from '../data';
 
 import ReactECharts from 'echarts-for-react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { darkenColor, getColorForLanguage, isoCodeToGeoJsonName, lightenColor } from './utils';
 
 
@@ -20,20 +20,18 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language, on
         loadWorldMap().then(() => setMapLoaded(true));
     }, []);
 
-    if (!mapLoaded) {
-        return (
-            <div className="flex items-center justify-center h-[400px]">
-                <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-                <span className="ml-3 text-gray-600">Loading map...</span>
-            </div>
-        );
-    }
+    const countrySalaryData = useMemo(() => computeCountryAverageSalaries(data), [data]);
+    const chartData = useMemo(() => transformToChartData(countrySalaryData), [countrySalaryData]);
+    const countryColor = useMemo(() => getColorForLanguage(language), [language]);
+    const onEvents = useMemo(() => ({
+        click: (params: { data: { name: string } }) => {
+            if (params?.data?.name) {
+                onCountrySelect(params.data.name);
+            }
+        },
+    }), [onCountrySelect]);
 
-    const countrySalaryData = computeCountryAverageSalaries(data);
-    const chartData = transformToChartData(countrySalaryData);
-    const countryColor = getColorForLanguage(language);
-
-    const option = {
+    const option = useMemo(() => ({
         title: {
             text: `Average Salary in ${year} (${language})`,
             left: 'center',
@@ -82,16 +80,17 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language, on
                 data: chartData,
             },
         ],
-    };
+    }), [year, language, countryColor, chartData]);
 
-    const onEvents = {
-        click: (params: { data: { name: string } }) => {
-            if (params?.data?.name) {
-                onCountrySelect(params.data.name);
-            }
-        },
-    };
 
+    if (!mapLoaded) {
+        return (
+            <div className="flex items-center justify-center h-[400px]">
+                <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                <span className="ml-3 text-gray-600">Loading map...</span>
+            </div>
+        );
+    }
     return (
         <ReactECharts
             option={option}
@@ -129,9 +128,11 @@ const transformToChartData = (
 
 const loadWorldMap = async () => {
     if (!echarts.getMap('world')) {
+        console.log('loading world map');
         const worldGeoJson = await fetch('https://cdn.jsdelivr.net/npm/echarts/map/json/world.json').then((res) =>
             res.json()
         );
+        console.log('world map loaded');
         echarts.registerMap('world', worldGeoJson);
     }
 };
