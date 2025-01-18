@@ -65,9 +65,18 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language }) 
                     max: 10
                 },
                 emphasis: {
-                    label: {
-                        show: true,
-                    },
+                    itemStyle: {
+                        areaColor: lightenColor(countryColor, 50),
+                        borderWidth: 2,
+                        borderColor: darkenColor(countryColor, 50),
+                    }
+                },
+                select: {
+                    itemStyle: {
+                        areaColor: lightenColor(countryColor, 30),
+                        borderWidth: 2,
+                        borderColor: darkenColor(countryColor, 70),
+                    }
                 },
                 data: chartData,
             },
@@ -99,10 +108,12 @@ const computeCountryAverageSalaries = (data: Array<{ country_code: string; salar
 const transformToChartData = (
     countrySalaryData: Record<string, { total: number; count: number }>
 ) => {
-    return Object.entries(countrySalaryData).map(([countryCode, { total, count }]) => ({
-        name: isoCodeToGeoJsonName[countryCode],
-        value: total / count,
-    }));
+    return Object.entries(countrySalaryData)
+        .map(([countryCode, { total, count }]) => ({
+            name: isoCodeToGeoJsonName[countryCode],
+            value: total / count,
+        }))
+        .filter(item => item.name !== undefined);
 };
 
 
