@@ -64,6 +64,7 @@ export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, select
             showLoading={data.length === 0}
             loadingOption={{
                 text: 'Loading csv data (this only happens once)...',
+                fontFamily: 'PPSupplyMono'
             }}
         />
     );
@@ -93,6 +94,7 @@ const transformToTreemapData = (languageCounts: Record<string, number>, selected
             },
             label: {
                 color: darkenColor(color, 100),
+                fontFamily: 'PPSupplyMono'
             },
         };
     });

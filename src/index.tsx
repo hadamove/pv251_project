@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
+import './styles/fonts.css'
 
 import { Choropleth } from './components/choropleth';
 import { Treemap } from './components/treemap';
@@ -43,6 +44,7 @@ const App = () => {
 
     return (
         <div className="mx-auto px-4 w-[48rem]">
+            hello world
             <div className="flex items-center justify-center gap-4 mb-8">
                 <input
                     type="range"

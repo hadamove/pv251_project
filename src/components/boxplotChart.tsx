@@ -92,10 +92,16 @@ const fillBinsWithData = (data: Respondent[], bins: { min: number; max: number; 
 const createChartOption = (binData: BinData[], color: string, language: string, year: number, country: string) => ({
     title: {
         text: `Salary Distribution by Years of Experience (${language}, ${year}, ${country})`,
-        left: 'center'
+        left: 'center',
+        textStyle: {
+            fontFamily: 'PPSupplyMono'
+        }
     },
     tooltip: {
         trigger: 'item',
+        textStyle: {
+            fontFamily: 'PPSupplyMono'
+        },
         formatter: (params: any) => {
             if (params.seriesType === 'boxplot') {
                 return `Years of Experience: ${params.name}<br/>` +
@@ -114,14 +120,22 @@ const createChartOption = (binData: BinData[], color: string, language: string, 
         data: binData.map(b => b.range),
         name: 'Years of Experience',
         axisLabel: {
-            rotate: 45
+            rotate: 45,
+            fontFamily: 'PPSupplyMono'
+        },
+        nameTextStyle: {
+            fontFamily: 'PPSupplyMono'
         }
     },
     yAxis: {
         type: 'value',
         name: 'Salary ($)',
         axisLabel: {
-            formatter: (value: number) => `$${value.toLocaleString()}`
+            formatter: (value: number) => `$${value.toLocaleString()}`,
+            fontFamily: 'PPSupplyMono'
+        },
+        nameTextStyle: {
+            fontFamily: 'PPSupplyMono'
         }
     },
     series: [{

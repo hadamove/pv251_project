@@ -35,9 +35,15 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language, on
         title: {
             text: `Average Salary in ${year} (${language})`,
             left: 'center',
+            textStyle: {
+                fontFamily: 'PPSupplyMono'
+            }
         },
         tooltip: {
             trigger: 'item',
+            textStyle: {
+                fontFamily: 'PPSupplyMono'
+            },
             formatter: (params: { value: number; name: string }) => {
                 const value = params.value ? `$${params.value.toFixed(2)}` : 'N/A';
                 return `${params.name}: ${value}`;
@@ -46,9 +52,15 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language, on
         visualMap: {
             min: 0,
             max: 100000,
-            text: ['$100,000+', '$0'],
+            formatter: (value: number) => {
+                if (value >= 100000) return '$100,000+';
+                return `$${value.toLocaleString()}`;
+            },
             realtime: false,
             calculable: true,
+            textStyle: {
+                fontFamily: 'PPSupplyMono'
+            },
             inRange: {
                 color: [lightenColor(countryColor, 100), darkenColor(countryColor, 100)],
             },
@@ -64,6 +76,10 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language, on
                     max: 10
                 },
                 emphasis: {
+                    label: {
+                        show: true,
+                        fontFamily: 'PPSupplyMono'
+                    },
                     itemStyle: {
                         areaColor: lightenColor(countryColor, 50),
                         borderWidth: 2,
@@ -71,11 +87,19 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language, on
                     }
                 },
                 select: {
+                    label: {
+                        show: true,
+                        fontFamily: 'PPSupplyMono'
+                    },
                     itemStyle: {
                         areaColor: lightenColor(countryColor, 30),
                         borderWidth: 2,
                         borderColor: darkenColor(countryColor, 70),
                     }
+                },
+                label: {
+                    show: false,
+                    fontFamily: 'PPSupplyMono'
                 },
                 data: chartData,
             },
@@ -85,7 +109,7 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language, on
 
     if (!mapLoaded) {
         return (
-            <div className="flex items-center justify-center h-[400px]">
+            <div className="flex items-center justify-center h-[400px] font-supply">
                 <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
                 <span className="ml-3 text-gray-600">Loading map...</span>
             </div>
