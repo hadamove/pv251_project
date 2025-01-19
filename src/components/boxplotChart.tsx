@@ -1,3 +1,4 @@
+// Import required dependencies
 import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { Respondent } from '../data';
@@ -5,12 +6,15 @@ import { darkenColor, getColorForLanguage } from './utils';
 
 interface BarChartProps {
     data: Respondent[];
-    year: number;
     language: string;
-    country: string;
 }
 
-export const SalaryBoxplotChart: React.FC<BarChartProps> = ({ data, year, language, country }) => {
+/**
+ * Component that renders a boxplot chart showing salary distribution by years of experience
+ * Data is binned into experience ranges and displays salary statistics (min, Q1, median, Q3, max)
+ */
+export const SalaryBoxplotChart: React.FC<BarChartProps> = ({ data, language }) => {
+    // Process data into bins based on years of experience
     const binData = useMemo(() => {
         const maxExperience = Math.max(...data.map(d => d.years_of_experience));
         const bins = createBins(maxExperience);
@@ -18,8 +22,8 @@ export const SalaryBoxplotChart: React.FC<BarChartProps> = ({ data, year, langua
     }, [data]);
 
     const color = getColorForLanguage(language);
-    const option = useMemo(() => createChartOption(binData, color, language, year, country),
-        [binData, color, language, year, country]);
+    const option = useMemo(() => createChartOption(binData, color),
+        [binData, color]);
 
     return (
         <ReactECharts
@@ -30,6 +34,7 @@ export const SalaryBoxplotChart: React.FC<BarChartProps> = ({ data, year, langua
     );
 };
 
+// Types for boxplot statistical calculations
 interface BoxPlotData {
     min: number;
     q1: number;
@@ -44,6 +49,9 @@ interface BinData {
     count: number;
 }
 
+/**
+ * Calculates box plot statistics (min, Q1, median, Q3, max) from an array of values
+ */
 const calculateBoxPlotData = (values: number[]): BoxPlotData => {
     if (values.length === 0) {
         return { min: 0, q1: 0, median: 0, q3: 0, max: 0 };
@@ -63,6 +71,9 @@ const calculateBoxPlotData = (values: number[]): BoxPlotData => {
     };
 };
 
+/**
+ * Creates 10 evenly-sized bins based on the maximum years of experience
+ */
 const createBins = (maxExperience: number): { min: number; max: number; salaries: number[] }[] => {
     const binSize = Math.ceil(maxExperience / 10);
     return Array.from({ length: 10 }, (_, i) => ({
@@ -72,6 +83,10 @@ const createBins = (maxExperience: number): { min: number; max: number; salaries
     }));
 };
 
+/**
+ * Distributes salary data into experience bins and calculates statistics for each bin
+ * Filters out empty bins to avoid displaying ranges with no data
+ */
 const fillBinsWithData = (data: Respondent[], bins: { min: number; max: number; salaries: number[] }[]): BinData[] => {
     const binSize = bins[0].max - bins[0].min;
 
@@ -89,14 +104,11 @@ const fillBinsWithData = (data: Respondent[], bins: { min: number; max: number; 
         .filter(bin => bin.count > 0);
 };
 
-const createChartOption = (binData: BinData[], color: string, language: string, year: number, country: string) => ({
-    title: {
-        text: `Salary Distribution by Years of Experience (${language}, ${year}, ${country})`,
-        left: 'center',
-        textStyle: {
-            fontFamily: 'PPSupplyMono'
-        }
-    },
+/**
+ * Creates the ECharts configuration object for the boxplot visualization
+ * Includes tooltip formatting, axis configuration, and styling options
+ */
+const createChartOption = (binData: BinData[], color: string) => ({
     tooltip: {
         trigger: 'item',
         textStyle: {
@@ -118,7 +130,7 @@ const createChartOption = (binData: BinData[], color: string, language: string, 
     xAxis: {
         type: 'category',
         data: binData.map(b => b.range),
-        name: 'Years of Experience',
+        name: 'Y.o.E.',
         axisLabel: {
             rotate: 45,
             fontFamily: 'PPSupplyMono'
@@ -132,10 +144,11 @@ const createChartOption = (binData: BinData[], color: string, language: string, 
         name: 'Salary ($)',
         axisLabel: {
             formatter: (value: number) => `$${value.toLocaleString()}`,
-            fontFamily: 'PPSupplyMono'
+            fontFamily: 'PPSupplyMono',
         },
         nameTextStyle: {
-            fontFamily: 'PPSupplyMono'
+            fontFamily: 'PPSupplyMono',
+            align: 'left'
         }
     },
     series: [{
@@ -155,16 +168,8 @@ const createChartOption = (binData: BinData[], color: string, language: string, 
         emphasis: {
             itemStyle: {
                 borderWidth: 2,
-                shadowBlur: 5,
-                shadowColor: 'rgba(0,0,0,0.2)'
             }
         },
         animationDurationUpdate: 200
     }],
-    grid: {
-        containLabel: true,
-        left: '5%',
-        right: '5%',
-        bottom: '15%'
-    }
 });

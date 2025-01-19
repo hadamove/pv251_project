@@ -8,12 +8,11 @@ import { darkenColor, getColorForLanguage, isoCodeToGeoJsonName, lightenColor } 
 
 interface ChoroplethProps {
     data: Respondent[];
-    year: number;
     language: string;
     onCountrySelect: (country: string) => void;
 }
 
-export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language, onCountrySelect }) => {
+export const Choropleth: React.FC<ChoroplethProps> = ({ data, language, onCountrySelect }) => {
     const [mapLoaded, setMapLoaded] = useState(false);
 
     useEffect(() => {
@@ -32,13 +31,6 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language, on
     }), [onCountrySelect]);
 
     const option = useMemo(() => ({
-        title: {
-            text: `Average Salary in ${year} (${language})`,
-            left: 'center',
-            textStyle: {
-                fontFamily: 'PPSupplyMono'
-            }
-        },
         tooltip: {
             trigger: 'item',
             textStyle: {
@@ -104,7 +96,7 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language, on
                 data: chartData,
             },
         ],
-    }), [year, language, countryColor, chartData]);
+    }), [countryColor, chartData]);
 
 
     if (!mapLoaded) {

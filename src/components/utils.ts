@@ -1,6 +1,12 @@
+/**
+ * Color mapping and utilities for visualizing programming language data
+ */
 
-
-// Each programming language gets a unique color somewhat representative of the language's logo
+/**
+ * Maps programming languages to brand-appropriate hex colors
+ * Colors are chosen to be visually similar to each language's logo/branding
+ * while maintaining readability when used in visualizations
+ */
 export const getColorForLanguage = (language: string): string => {
     const staticColorMapping: Record<string, string> = {
         'Swift': '#ffd195',
@@ -28,6 +34,10 @@ export const getColorForLanguage = (language: string): string => {
     return staticColorMapping[language] || '#CCCCCC'; // Fallback to gray for unknown languages
 }
 
+/**
+ * Darkens a hex color by subtracting the specified amount from RGB values
+ * Used for creating hover/selected states in visualizations
+ */
 export const darkenColor = (hex: string, amount: number): string => {
     const r = Math.max(0, parseInt(hex.slice(1, 3), 16) - amount);
     const g = Math.max(0, parseInt(hex.slice(3, 5), 16) - amount);
@@ -35,6 +45,10 @@ export const darkenColor = (hex: string, amount: number): string => {
     return `#${r.toString(16).padStart(1, '0')}${g.toString(16).padStart(1, '0')}${b.toString(16).padStart(1, '0')}`;
 }
 
+/**
+ * Lightens a hex color by adding the specified amount to RGB values
+ * Used for creating hover/selected states in visualizations
+ */
 export const lightenColor = (hex: string, amount: number): string => {
     const r = Math.min(255, parseInt(hex.slice(1, 3), 16) + amount);
     const g = Math.min(255, parseInt(hex.slice(3, 5), 16) + amount);
@@ -42,9 +56,11 @@ export const lightenColor = (hex: string, amount: number): string => {
     return `#${r.toString(16).padStart(1, '0')}${g.toString(16).padStart(1, '0')}${b.toString(16).padStart(1, '0')}`;
 }
 
-// Geojson uses different country names than our csv file
-// But we can use country iso codes to map them to names used by geojson
-// The mapping was created by `get_country_code` in `preprocess.ipynb`
+/**
+ * Maps ISO country codes to country names used in GeoJSON data
+ * This mapping is necessary because the CSV data uses ISO codes while
+ * the visualization library's GeoJSON uses slightly different country names
+ */
 export const isoCodeToGeoJsonName: Record<string, string> = {
     'SO': 'Somalia',
     'LI': 'Liechtenstein',
@@ -256,6 +272,9 @@ export const isoCodeToGeoJsonName: Record<string, string> = {
     'ZW': 'Zimbabwe'
 };
 
-// Reverse mapping from geojson name to iso code
+/**
+ * Reverse lookup function to get ISO code from GeoJSON country name
+ * Used when handling click events on the map to filter data by country
+ */
 export const geoJsonNameToIsoCode = (name: string): string | undefined =>
     Object.keys(isoCodeToGeoJsonName).find(key => isoCodeToGeoJsonName[key] === name);

@@ -3,15 +3,26 @@ import ReactECharts from 'echarts-for-react';
 import { Respondent } from '../data';
 import { darkenColor, getColorForLanguage } from './utils';
 
-
+/**
+ * Props for the Treemap component
+ * data: Array of survey respondents
+ * onLanguageSelect: Callback when a language tile is clicked
+ * selectedLanguage: Currently selected language to highlight
+ */
 interface TreemapProps {
     data: Respondent[];
     onLanguageSelect: (language: string) => void;
     selectedLanguage: string | null;
 }
 
+/**
+ * Treemap visualization showing the distribution of programming languages
+ * Each tile's size represents the number of respondents using that language
+ */
 export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, selectedLanguage }) => {
+    // Count occurrences of each programming language
     const languageCounts = useMemo(() => computeLanguageCounts(data), [data]);
+    // Calculate total respondents for percentage calculations
     const totalCount = useMemo(() =>
         Object.values(languageCounts).reduce((a, b) => a + b, 0),
         [languageCounts]
@@ -48,6 +59,7 @@ export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, select
         ],
     }), [languageCounts, totalCount, selectedLanguage]);
 
+    // Click handler for language selection
     const onEvents = useMemo(() => ({
         click: (params: { data: { name: string } }) => {
             if (params?.data?.name) {
@@ -70,6 +82,10 @@ export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, select
     );
 };
 
+/**
+ * Counts the number of respondents for each programming language
+ * Returns an object mapping language names to counts
+ */
 const computeLanguageCounts = (data: Respondent[]): Record<string, number> => {
     const languageCounts: Record<string, number> = {};
     data.forEach((item) => {
@@ -80,6 +96,10 @@ const computeLanguageCounts = (data: Respondent[]): Record<string, number> => {
     return languageCounts;
 };
 
+/**
+ * Transforms language count data into ECharts treemap format
+ * Applies styling based on language selection state
+ */
 const transformToTreemapData = (languageCounts: Record<string, number>, selectedLanguage: string | null) => {
     return Object.entries(languageCounts).map(([name, value]) => {
         const color = getColorForLanguage(name);
