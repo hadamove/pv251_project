@@ -6,12 +6,11 @@ import { darkenColor, getColorForLanguage } from './utils';
 
 interface TreemapProps {
     data: Respondent[];
-    year: number;
     onLanguageSelect: (language: string) => void;
     selectedLanguage: string | null;
 }
 
-export const Treemap: React.FC<TreemapProps> = ({ data, year, onLanguageSelect, selectedLanguage }) => {
+export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, selectedLanguage }) => {
     const languageCounts = useMemo(() => computeLanguageCounts(data), [data]);
     const totalCount = useMemo(() =>
         Object.values(languageCounts).reduce((a, b) => a + b, 0),
@@ -20,6 +19,7 @@ export const Treemap: React.FC<TreemapProps> = ({ data, year, onLanguageSelect, 
 
     // This is memoized to prevent completely re-rendering the treemap when the data changes
     // The component would work without it, but it would be less efficient and animations would not work
+    // The same popular React pattern with useMemo is used in other components too
     const option = useMemo(() => ({
         tooltip: {
             formatter: (info: any) => {
@@ -30,7 +30,7 @@ export const Treemap: React.FC<TreemapProps> = ({ data, year, onLanguageSelect, 
         series: [
             {
                 type: 'treemap',
-                data: transformToTreemapData(languageCounts, totalCount, selectedLanguage),
+                data: transformToTreemapData(languageCounts, selectedLanguage),
                 label: {
                     show: true,
                     formatter: (params: any) => {
@@ -59,7 +59,7 @@ export const Treemap: React.FC<TreemapProps> = ({ data, year, onLanguageSelect, 
     return (
         <ReactECharts
             option={option}
-            style={{ height: '400px', width: '100%' }}
+            style={{ height: '24rem', width: '48rem' }}
             onEvents={onEvents}
             showLoading={data.length === 0}
             loadingOption={{
@@ -79,7 +79,7 @@ const computeLanguageCounts = (data: Respondent[]): Record<string, number> => {
     return languageCounts;
 };
 
-const transformToTreemapData = (languageCounts: Record<string, number>, totalCount: number, selectedLanguage: string | null) => {
+const transformToTreemapData = (languageCounts: Record<string, number>, selectedLanguage: string | null) => {
     return Object.entries(languageCounts).map(([name, value]) => {
         const color = getColorForLanguage(name);
         const borderColor = darkenColor(color, 20);

@@ -42,7 +42,7 @@ const App = () => {
     };
 
     return (
-        <div className="w-full max-w-6xl mx-auto px-4 py-8">
+        <div className="mx-auto px-4 w-[48rem]">
             <div className="flex items-center justify-center gap-4 mb-8">
                 <input
                     type="range"
@@ -55,26 +55,23 @@ const App = () => {
                 <span id="selected-year" className="text-lg font-medium">{selectedYear}</span>
             </div>
 
-            <div className="mb-8">
+            <div className="mb-8 h-full w-full">
                 <Treemap
                     data={csvData.filter((row) => row.year === selectedYear)}
-                    year={selectedYear}
                     onLanguageSelect={onLanguageSelect}
                     selectedLanguage={selectedLanguage}
                 />
             </div>
 
             {selectedLanguage && (
-                <>
-                    <div className="mb-8">
-                        <Choropleth
-                            data={csvData.filter((row) => row.year === selectedYear && row.language === selectedLanguage)}
-                            year={selectedYear}
-                            language={selectedLanguage}
-                            onCountrySelect={onCountrySelect}
-                        />
-                    </div>
-                </>
+                <div className="mb-8">
+                    <Choropleth
+                        data={csvData.filter((row) => row.year === selectedYear && row.language === selectedLanguage)}
+                        year={selectedYear}
+                        language={selectedLanguage}
+                        onCountrySelect={onCountrySelect}
+                    />
+                </div>
             )}
 
             {selectedLanguage && selectedCountry && (

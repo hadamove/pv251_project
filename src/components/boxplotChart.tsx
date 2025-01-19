@@ -24,7 +24,7 @@ export const SalaryBoxplotChart: React.FC<BarChartProps> = ({ data, year, langua
     return (
         <ReactECharts
             option={option}
-            style={{ height: '400px', width: '100%' }}
+            style={{ height: '24rem', width: '48rem' }}
             notMerge={true}
         />
     );

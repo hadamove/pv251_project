@@ -94,7 +94,7 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, year, language, on
     return (
         <ReactECharts
             option={option}
-            style={{ height: '400px', width: '100%' }}
+            style={{ height: '24rem', width: '48rem' }}
             opts={{ renderer: 'canvas' }}
             onEvents={onEvents}
         />
