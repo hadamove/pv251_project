@@ -6,7 +6,11 @@
 - [x] try reworking boxplot into violin plot
 - [x] figure out why some boxplots don't work (e.g. US)
 - [x] refactor layout
-- [ ] let user know when country has no data for selected year and language
 - [ ] investigate why 2016 has so little exp range, maybe go with 12+ instead of 12-14
+- [ ] same bins in boxplot (0-2, 2-4, 4-8, 8-16, 16+), remove 2016 from data cuz weird bins
+- [ ] let user know when country has no data for selected year and language
+- [ ] add headings to each graph
 - [ ] improve boxplot tooltips
+- [ ] remove console logs
+- [ ] try implementing "compare" feature
 
