@@ -3,12 +3,6 @@ import ReactECharts from 'echarts-for-react';
 import { Respondent } from '../data';
 import { darkenColor, getColorForLanguage } from './utils';
 
-/**
- * Props for the Treemap component
- * data: Array of survey respondents
- * onLanguageSelect: Callback when a language tile is clicked
- * selectedLanguage: Currently selected language to highlight
- */
 interface TreemapProps {
     data: Respondent[];
     onLanguageSelect: (language: string) => void;

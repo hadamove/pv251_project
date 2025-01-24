@@ -4,7 +4,7 @@ import ReactECharts from 'echarts-for-react';
 import { Respondent } from '../data';
 import { darkenColor, getColorForLanguage } from './utils';
 
-interface BarChartProps {
+interface SalaryBoxplotChartProps {
     data: Respondent[];
     language: string;
 }
@@ -13,7 +13,7 @@ interface BarChartProps {
  * Component that renders a boxplot chart showing salary distribution by years of experience
  * Data is binned into experience ranges and displays salary statistics (min, Q1, median, Q3, max)
  */
-export const SalaryBoxplotChart: React.FC<BarChartProps> = ({ data, language }) => {
+export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, language }) => {
     // Process data into bins based on years of experience
     const binData = useMemo(() => {
         const maxExperience = Math.max(...data.map(d => d.years_of_experience));
