@@ -7,14 +7,13 @@ interface TreemapProps {
     data: Respondent[];
     onLanguageSelect: (language: string) => void;
     selectedLanguage: string | null;
-    isDarkMode?: boolean;
 }
 
 /**
  * Treemap visualization showing the distribution of programming languages
  * Each tile's size represents the number of respondents using that language
  */
-export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, selectedLanguage, isDarkMode = false }) => {
+export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, selectedLanguage }) => {
     // Count occurrences of each programming language
     const languageCounts = useMemo(() => computeLanguageCounts(data), [data]);
     // Calculate total respondents for percentage calculations
@@ -23,44 +22,10 @@ export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, select
         [languageCounts]
     );
 
-    // TODO: extract to createOption like boxplot
-    // This is memoized to prevent completely re-rendering the treemap when the data changes
-    // The component would work without it, but it would be less efficient and animations would not work
-    // The same popular React pattern with useMemo is used in other components too
-    const option = useMemo(() => ({
-        tooltip: {
-            formatter: (info: any) => {
-                const percentage = ((info.value / totalCount) * 100).toFixed(1);
-                return `${info.name}: ${info.value} (${percentage}%)`;
-            },
-            textStyle: {
-                fontFamily: 'PPSupplyMono',
-                color: isDarkMode ? '#e5e7eb' : '#1f2937'
-            },
-            backgroundColor: isDarkMode ? '#374151' : '#ffffff',
-            borderColor: isDarkMode ? '#4b5563' : '#e5e7eb'
-        },
-        series: [
-            {
-                type: 'treemap',
-                data: transformToTreemapData(languageCounts, selectedLanguage),
-                label: {
-                    show: true,
-                    formatter: (params: any) => {
-                        const percentage = ((params.value / totalCount) * 100).toFixed(1);
-                        return `${params.name}\n${percentage}%`;
-                    },
-                    color: isDarkMode ? '#e5e7eb' : '#1f2937'
-                },
-                roam: false,
-                nodeClick: false,
-                breadcrumb: {
-                    show: false
-                },
-                animationDurationUpdate: 200
-            },
-        ],
-    }), [languageCounts, totalCount, selectedLanguage, isDarkMode]);
+    // Create the ECharts configuration object for the treemap
+    const option = useMemo(() => createTreemapOption(languageCounts, totalCount, selectedLanguage),
+        [languageCounts, totalCount, selectedLanguage]);
+
 
     // Click handler for language selection
     const onEvents = useMemo(() => ({
@@ -80,7 +45,7 @@ export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, select
             loadingOption={{
                 text: 'Loading csv data (this only happens once)...',
                 fontFamily: 'PPSupplyMono',
-                textColor: isDarkMode ? '#e5e7eb' : '#1f2937'
+                textColor: '#1f2937'
             }}
         />
     );
@@ -113,6 +78,7 @@ const transformToTreemapData = (languageCounts: Record<string, number>, selected
             value,
             itemStyle: {
                 color,
+                // Style for when a language is selected
                 borderColor: selectedLanguage === name ? darkenColor(color, 100) : borderColor,
                 borderWidth: selectedLanguage === name ? 3 : 1,
             },
@@ -123,3 +89,53 @@ const transformToTreemapData = (languageCounts: Record<string, number>, selected
         };
     });
 };
+
+/**
+ * Creates the ECharts configuration object for the treemap visualization
+ * Includes tooltip formatting, label configuration, and styling options
+ */
+const createTreemapOption = (
+    languageCounts: Record<string, number>,
+    totalCount: number,
+    selectedLanguage: string | null,
+) => ({
+    // Configure tooltip that appears on hover
+    tooltip: {
+        trigger: 'item', // Show tooltip when hovering over data points
+        formatter: (info: any) => {
+            const percentage = ((info.value / totalCount) * 100).toFixed(1);
+            return `${info.name}: ${info.value} (${percentage}%)`;
+        },
+        textStyle: {
+            fontFamily: 'PPSupplyMono',
+            color: '#1f2937'
+        },
+        backgroundColor: '#ffffff',
+        borderColor: '#e5e7eb'
+    },
+    series: [
+        {
+            type: 'treemap',
+            data: transformToTreemapData(languageCounts, selectedLanguage),
+            label: {
+                show: true,
+                // Custom label formatter to display language name and percentage
+                formatter: (params: any) => {
+                    const percentage = ((params.value / totalCount) * 100).toFixed(1);
+                    return `${params.name}\n${percentage}%`;
+                },
+                fontFamily: 'PPSupplyMono',
+                color: '#1f2937'
+            },
+            // Disable panning and zooming
+            roam: false,
+            // Disable node click action
+            nodeClick: false,
+            // Hide breadcrumb navigation
+            breadcrumb: {
+                show: false
+            },
+            animationDurationUpdate: 200
+        },
+    ],
+});

@@ -21,7 +21,6 @@ const App = () => {
     const [selectedYear, setSelectedYear] = useState<number>(2016);
     const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-    const [isDarkMode, setIsDarkMode] = useState(false);
 
     // Memoized callback to toggle country selection
     const onCountrySelect = useMemo(() => (country: string) => {
@@ -44,12 +43,6 @@ const App = () => {
         };
         loadData();
     }, []);
-
-    // Add this effect after other useEffect hooks
-    useEffect(() => {
-        document.body.className = `flex flex-col items-center min-h-screen p-4 space-y-4 transition-colors ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
-            }`;
-    }, [isDarkMode]);
 
     // Handler for year selection slider
     const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,22 +71,8 @@ const App = () => {
         [languageFilteredData, selectedCountry]
     );
 
-    // Add dark mode toggle handler
-    const toggleDarkMode = () => setIsDarkMode(prev => !prev);
-
     return (
-        <div className={`mx-auto px-4 w-[48rem] rounded-lg ${isDarkMode ? 'bg-gray-900 text-gray-200' : 'bg-white text-gray-800'}`}>
-            {/* Add dark mode toggle button */}
-            <button
-                onClick={toggleDarkMode}
-                className={`px-4 py-2 rounded-lg mb-4 ${isDarkMode
-                    ? 'bg-gray-700 hover:bg-gray-600'
-                    : 'bg-gray-200 hover:bg-gray-300'
-                    }`}
-            >
-                {isDarkMode ? '🌙 Dark' : '☀️ Light'}
-            </button>
-
+        <div className={`mx-auto px-4 w-[48rem] rounded-lg bg-white text-gray-800`}>
             {/* Year selection slider */}
             <div className="flex items-center justify-center gap-4 mb-8">
                 <input
@@ -113,7 +92,6 @@ const App = () => {
                     data={yearFilteredData}
                     onLanguageSelect={onLanguageSelect}
                     selectedLanguage={selectedLanguage}
-                    isDarkMode={isDarkMode}
                 />
             </div>
 
@@ -124,7 +102,6 @@ const App = () => {
                         data={languageFilteredData}
                         language={selectedLanguage}
                         onCountrySelect={onCountrySelect}
-                        isDarkMode={isDarkMode}
                     />
                 </div>
             )}
@@ -135,7 +112,6 @@ const App = () => {
                     <SalaryBoxplotChart
                         data={countryFilteredData}
                         language={selectedLanguage}
-                        isDarkMode={isDarkMode}
                     />
                 </div>
             )}

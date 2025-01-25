@@ -1,6 +1,17 @@
+import { getMap, registerMap } from 'echarts';
+
 /**
- * Color mapping and utilities for visualizing programming language data
+ * Loads the GeoJSON data for the world map for choropleth visualization
  */
+export const loadWorldMap = async () => {
+    if (!getMap('world')) {
+        const worldGeoJson = await fetch('https://cdn.jsdelivr.net/npm/echarts/map/json/world.json').then((res) =>
+            res.json()
+        );
+        registerMap('world', worldGeoJson);
+    }
+};
+
 
 /**
  * Maps programming languages to brand-appropriate hex colors
@@ -36,7 +47,6 @@ export const getColorForLanguage = (language: string): string => {
 
 /**
  * Darkens a hex color by subtracting the specified amount from RGB values
- * Used for creating hover/selected states in visualizations
  */
 export const darkenColor = (hex: string, amount: number): string => {
     const r = Math.max(0, parseInt(hex.slice(1, 3), 16) - amount);
@@ -47,7 +57,6 @@ export const darkenColor = (hex: string, amount: number): string => {
 
 /**
  * Lightens a hex color by adding the specified amount to RGB values
- * Used for creating hover/selected states in visualizations
  */
 export const lightenColor = (hex: string, amount: number): string => {
     const r = Math.min(255, parseInt(hex.slice(1, 3), 16) + amount);

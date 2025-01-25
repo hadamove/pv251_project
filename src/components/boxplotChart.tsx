@@ -7,14 +7,13 @@ import { darkenColor, getColorForLanguage } from './utils';
 interface SalaryBoxplotChartProps {
     data: Respondent[];
     language: string;
-    isDarkMode?: boolean;
 }
 
 /**
  * Component that renders a boxplot chart showing salary distribution by years of experience
  * Data is binned into experience ranges and displays salary statistics (min, Q1, median, Q3, max)
  */
-export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, language, isDarkMode = false }) => {
+export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, language }) => {
     // Process data into bins based on years of experience
     const binData = useMemo(() => {
         const maxExperience = Math.max(...data.map(d => d.years_of_experience));
@@ -22,9 +21,11 @@ export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, la
         return fillBinsWithData(data, bins);
     }, [data]);
 
+    // Get the color for the language
     const color = getColorForLanguage(language);
-    const option = useMemo(() => createChartOption(binData, color, isDarkMode),
-        [binData, color, isDarkMode]);
+    // Create the ECharts option for the boxplot chart
+    const option = useMemo(() => createBoxplotOption(binData, color),
+        [binData, color]);
 
     return (
         <ReactECharts
@@ -35,7 +36,9 @@ export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, la
     );
 };
 
-// Types for boxplot statistical calculations
+/**
+ * Represents the data for a single bin in the boxplot chart
+ */
 interface BoxPlotData {
     min: number;
     q1: number;
@@ -44,6 +47,9 @@ interface BoxPlotData {
     max: number;
 }
 
+/**
+ * Represents the data for a single bin in the boxplot chart
+ */
 interface BinData {
     range: string;
     stats: BoxPlotData;
@@ -109,15 +115,17 @@ const fillBinsWithData = (data: Respondent[], bins: { min: number; max: number; 
  * Creates the ECharts configuration object for the boxplot visualization
  * Includes tooltip formatting, axis configuration, and styling options
  */
-const createChartOption = (binData: BinData[], color: string, isDarkMode: boolean) => ({
+const createBoxplotOption = (binData: BinData[], color: string) => ({
+    // Configure tooltip that appears on hover
     tooltip: {
-        trigger: 'item',
+        trigger: 'item', // Show tooltip when hovering over data points
         textStyle: {
             fontFamily: 'PPSupplyMono',
-            color: isDarkMode ? '#e5e7eb' : '#1f2937'
+            color: '#1f2937'
         },
-        backgroundColor: isDarkMode ? '#374151' : '#ffffff',
-        borderColor: isDarkMode ? '#4b5563' : '#e5e7eb',
+        backgroundColor: '#ffffff',
+        borderColor: '#e5e7eb',
+        // Custom tooltip formatter to display boxplot statistics
         formatter: (params: any) => {
             if (params.seriesType === 'boxplot') {
                 return `Years of Experience: ${params.name}<br/>` +
@@ -131,37 +139,41 @@ const createChartOption = (binData: BinData[], color: string, isDarkMode: boolea
             return '';
         }
     },
+    // Configure x-axis showing years of experience ranges
     xAxis: {
-        type: 'category',
+        type: 'category', // Discrete categories for experience ranges
         data: binData.map(b => b.range),
         name: 'Y.o.E.',
         axisLabel: {
-            rotate: 45,
+            rotate: 45, // Rotate labels for better readability
             fontFamily: 'PPSupplyMono',
-            color: isDarkMode ? '#e5e7eb' : '#1f2937'
+            color: '#1f2937'
         },
         nameTextStyle: {
             fontFamily: 'PPSupplyMono',
-            color: isDarkMode ? '#e5e7eb' : '#1f2937'
+            color: '#1f2937'
         }
     },
+    // Configure y-axis showing salary values
     yAxis: {
-        type: 'value',
+        type: 'value', // Continuous numerical values for salary
         name: 'Salary ($)',
         axisLabel: {
-            formatter: (value: number) => `$${value.toLocaleString()}`,
+            formatter: (value: number) => `$${value.toLocaleString()}`, // Format salary with $ and commas
             fontFamily: 'PPSupplyMono',
-            color: isDarkMode ? '#e5e7eb' : '#1f2937'
+            color: '#1f2937'
         },
         nameTextStyle: {
             fontFamily: 'PPSupplyMono',
-            color: isDarkMode ? '#e5e7eb' : '#1f2937',
+            color: '#1f2937',
             align: 'left'
         }
     },
+    // Configure the boxplot series
     series: [{
         name: 'Salary Distribution',
         type: 'boxplot',
+        // Map bin data to boxplot format: [min, Q1, median, Q3, max]
         data: binData.map(b => [
             b.stats.min,
             b.stats.q1,
@@ -170,14 +182,14 @@ const createChartOption = (binData: BinData[], color: string, isDarkMode: boolea
             b.stats.max
         ]),
         itemStyle: {
-            color: darkenColor(color, 50),
-            borderColor: darkenColor(color, 100)
+            color: darkenColor(color, 50), // Fill color for boxes
+            borderColor: darkenColor(color, 100) // Border color for boxes
         },
         emphasis: {
             itemStyle: {
-                borderWidth: 2,
+                borderWidth: 2, // Thicker border on hover
             }
         },
-        animationDurationUpdate: 200
+        animationDurationUpdate: 200 // Smooth transitions when data updates
     }],
 });
