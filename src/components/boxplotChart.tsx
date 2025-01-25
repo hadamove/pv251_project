@@ -17,7 +17,7 @@ export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, la
     // Process data into bins based on years of experience
     const binData = useMemo(() => {
         const maxExperience = Math.max(...data.map(d => d.years_of_experience));
-        const bins = createBins(maxExperience);
+        const bins = createBins();
         return fillBinsWithData(data, bins);
     }, [data]);
 
@@ -79,36 +79,34 @@ const calculateBoxPlotData = (values: number[]): BoxPlotData => {
 };
 
 /**
- * Creates 10 evenly-sized bins based on the maximum years of experience
+ * Creates predefined bins for years of experience ranges
  */
-const createBins = (maxExperience: number): { min: number; max: number; salaries: number[] }[] => {
-    const binSize = Math.ceil(maxExperience / 10);
-    return Array.from({ length: 10 }, (_, i) => ({
-        min: i * binSize,
-        max: (i + 1) * binSize,
-        salaries: []
-    }));
+const createBins = (): { min: number; max: number; salaries: number[] }[] => {
+    return [
+        { min: 0, max: 2, salaries: [] },
+        { min: 2, max: 4, salaries: [] },
+        { min: 4, max: 8, salaries: [] },
+        { min: 8, max: 16, salaries: [] },
+        { min: 16, max: Infinity, salaries: [] }
+    ];
 };
 
 /**
  * Distributes salary data into experience bins and calculates statistics for each bin
- * Filters out empty bins to avoid displaying ranges with no data
  */
 const fillBinsWithData = (data: Respondent[], bins: { min: number; max: number; salaries: number[] }[]): BinData[] => {
-    const binSize = bins[0].max - bins[0].min;
-
     data.forEach(d => {
-        const binIndex = Math.min(Math.floor(d.years_of_experience / binSize), 9);
-        bins[binIndex].salaries.push(d.salary);
+        const bin = bins.find(b => d.years_of_experience >= b.min && d.years_of_experience < b.max);
+        if (bin) {
+            bin.salaries.push(d.salary);
+        }
     });
 
-    return bins
-        .map(bin => ({
-            range: `${bin.min}-${bin.max}`,
-            stats: calculateBoxPlotData(bin.salaries),
-            count: bin.salaries.length
-        }))
-        .filter(bin => bin.count > 0);
+    return bins.map(bin => ({
+        range: bin.max === Infinity ? '16+' : `${bin.min}-${bin.max}`,
+        stats: calculateBoxPlotData(bin.salaries),
+        count: bin.salaries.length
+    }));
 };
 
 /**
