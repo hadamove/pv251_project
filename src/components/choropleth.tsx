@@ -10,9 +10,10 @@ interface ChoroplethProps {
     data: Respondent[];
     language: string;
     onCountrySelect: (country: string) => void;
+    isDarkMode?: boolean;
 }
 
-export const Choropleth: React.FC<ChoroplethProps> = ({ data, language, onCountrySelect }) => {
+export const Choropleth: React.FC<ChoroplethProps> = ({ data, language, onCountrySelect, isDarkMode = false }) => {
     const [mapLoaded, setMapLoaded] = useState(false);
 
     useEffect(() => {
@@ -30,12 +31,16 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, language, onCountr
         },
     }), [onCountrySelect]);
 
+    // TODO: extract to createOption like boxplot
     const option = useMemo(() => ({
         tooltip: {
             trigger: 'item',
             textStyle: {
-                fontFamily: 'PPSupplyMono'
+                fontFamily: 'PPSupplyMono',
+                color: isDarkMode ? '#e5e7eb' : '#1f2937'
             },
+            backgroundColor: isDarkMode ? '#374151' : '#ffffff',
+            borderColor: isDarkMode ? '#4b5563' : '#e5e7eb',
             formatter: (params: { value: number; name: string }) => {
                 const value = params.value ? `$${params.value.toFixed(2)}` : 'N/A';
                 return `${params.name}: ${value}`;
@@ -51,8 +56,10 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, language, onCountr
             realtime: false,
             calculable: true,
             textStyle: {
-                fontFamily: 'PPSupplyMono'
+                fontFamily: 'PPSupplyMono',
+                color: isDarkMode ? '#e5e7eb' : '#1f2937'
             },
+            backgroundColor: isDarkMode ? '#374151' : '#ffffff',
             inRange: {
                 color: [lightenColor(countryColor, 100), darkenColor(countryColor, 100)],
             },
@@ -70,7 +77,8 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, language, onCountr
                 emphasis: {
                     label: {
                         show: true,
-                        fontFamily: 'PPSupplyMono'
+                        fontFamily: 'PPSupplyMono',
+                        color: isDarkMode ? '#e5e7eb' : '#1f2937'
                     },
                     itemStyle: {
                         areaColor: lightenColor(countryColor, 50),
@@ -96,14 +104,14 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, language, onCountr
                 data: chartData,
             },
         ],
-    }), [countryColor, chartData]);
+    }), [countryColor, chartData, isDarkMode]);
 
 
     if (!mapLoaded) {
         return (
-            <div className="flex items-center justify-center h-[400px] font-supply">
+            <div className={`flex items-center justify-center h-[400px] font-supply ${isDarkMode ? 'text-gray-200' : 'text-gray-600'}`}>
                 <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-                <span className="ml-3 text-gray-600">Loading map...</span>
+                <span className="ml-3">Loading map...</span>
             </div>
         );
     }

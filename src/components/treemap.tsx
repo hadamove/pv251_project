@@ -7,13 +7,14 @@ interface TreemapProps {
     data: Respondent[];
     onLanguageSelect: (language: string) => void;
     selectedLanguage: string | null;
+    isDarkMode?: boolean;
 }
 
 /**
  * Treemap visualization showing the distribution of programming languages
  * Each tile's size represents the number of respondents using that language
  */
-export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, selectedLanguage }) => {
+export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, selectedLanguage, isDarkMode = false }) => {
     // Count occurrences of each programming language
     const languageCounts = useMemo(() => computeLanguageCounts(data), [data]);
     // Calculate total respondents for percentage calculations
@@ -22,6 +23,7 @@ export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, select
         [languageCounts]
     );
 
+    // TODO: extract to createOption like boxplot
     // This is memoized to prevent completely re-rendering the treemap when the data changes
     // The component would work without it, but it would be less efficient and animations would not work
     // The same popular React pattern with useMemo is used in other components too
@@ -31,6 +33,12 @@ export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, select
                 const percentage = ((info.value / totalCount) * 100).toFixed(1);
                 return `${info.name}: ${info.value} (${percentage}%)`;
             },
+            textStyle: {
+                fontFamily: 'PPSupplyMono',
+                color: isDarkMode ? '#e5e7eb' : '#1f2937'
+            },
+            backgroundColor: isDarkMode ? '#374151' : '#ffffff',
+            borderColor: isDarkMode ? '#4b5563' : '#e5e7eb'
         },
         series: [
             {
@@ -42,6 +50,7 @@ export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, select
                         const percentage = ((params.value / totalCount) * 100).toFixed(1);
                         return `${params.name}\n${percentage}%`;
                     },
+                    color: isDarkMode ? '#e5e7eb' : '#1f2937'
                 },
                 roam: false,
                 nodeClick: false,
@@ -51,7 +60,7 @@ export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, select
                 animationDurationUpdate: 200
             },
         ],
-    }), [languageCounts, totalCount, selectedLanguage]);
+    }), [languageCounts, totalCount, selectedLanguage, isDarkMode]);
 
     // Click handler for language selection
     const onEvents = useMemo(() => ({
@@ -70,7 +79,8 @@ export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, select
             showLoading={data.length === 0}
             loadingOption={{
                 text: 'Loading csv data (this only happens once)...',
-                fontFamily: 'PPSupplyMono'
+                fontFamily: 'PPSupplyMono',
+                textColor: isDarkMode ? '#e5e7eb' : '#1f2937'
             }}
         />
     );

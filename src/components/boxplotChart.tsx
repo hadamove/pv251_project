@@ -7,13 +7,14 @@ import { darkenColor, getColorForLanguage } from './utils';
 interface SalaryBoxplotChartProps {
     data: Respondent[];
     language: string;
+    isDarkMode?: boolean;
 }
 
 /**
  * Component that renders a boxplot chart showing salary distribution by years of experience
  * Data is binned into experience ranges and displays salary statistics (min, Q1, median, Q3, max)
  */
-export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, language }) => {
+export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, language, isDarkMode = false }) => {
     // Process data into bins based on years of experience
     const binData = useMemo(() => {
         const maxExperience = Math.max(...data.map(d => d.years_of_experience));
@@ -22,8 +23,8 @@ export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, la
     }, [data]);
 
     const color = getColorForLanguage(language);
-    const option = useMemo(() => createChartOption(binData, color),
-        [binData, color]);
+    const option = useMemo(() => createChartOption(binData, color, isDarkMode),
+        [binData, color, isDarkMode]);
 
     return (
         <ReactECharts
@@ -108,12 +109,15 @@ const fillBinsWithData = (data: Respondent[], bins: { min: number; max: number; 
  * Creates the ECharts configuration object for the boxplot visualization
  * Includes tooltip formatting, axis configuration, and styling options
  */
-const createChartOption = (binData: BinData[], color: string) => ({
+const createChartOption = (binData: BinData[], color: string, isDarkMode: boolean) => ({
     tooltip: {
         trigger: 'item',
         textStyle: {
-            fontFamily: 'PPSupplyMono'
+            fontFamily: 'PPSupplyMono',
+            color: isDarkMode ? '#e5e7eb' : '#1f2937'
         },
+        backgroundColor: isDarkMode ? '#374151' : '#ffffff',
+        borderColor: isDarkMode ? '#4b5563' : '#e5e7eb',
         formatter: (params: any) => {
             if (params.seriesType === 'boxplot') {
                 return `Years of Experience: ${params.name}<br/>` +
@@ -133,10 +137,12 @@ const createChartOption = (binData: BinData[], color: string) => ({
         name: 'Y.o.E.',
         axisLabel: {
             rotate: 45,
-            fontFamily: 'PPSupplyMono'
+            fontFamily: 'PPSupplyMono',
+            color: isDarkMode ? '#e5e7eb' : '#1f2937'
         },
         nameTextStyle: {
-            fontFamily: 'PPSupplyMono'
+            fontFamily: 'PPSupplyMono',
+            color: isDarkMode ? '#e5e7eb' : '#1f2937'
         }
     },
     yAxis: {
@@ -145,9 +151,11 @@ const createChartOption = (binData: BinData[], color: string) => ({
         axisLabel: {
             formatter: (value: number) => `$${value.toLocaleString()}`,
             fontFamily: 'PPSupplyMono',
+            color: isDarkMode ? '#e5e7eb' : '#1f2937'
         },
         nameTextStyle: {
             fontFamily: 'PPSupplyMono',
+            color: isDarkMode ? '#e5e7eb' : '#1f2937',
             align: 'left'
         }
     },
