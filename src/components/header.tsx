@@ -13,7 +13,7 @@ export const Header = ({ handleSliderChange, selectedYear, years }: HeaderProps)
     return (
         <div className="fixed top-0 left-0 right-0 z-50 flex flex-wrap items-center justify-between p-2 bg-white shadow-md">
             <div className="flex items-center">
-                <h1 className="text-sm sm:text-base font-medium">Dev Salaries</h1>
+                <h1 className="text-sm sm:text-base font-medium lg:mx-2">Dev Salaries</h1>
                 {/* Info tooltip */}
                 <div className="relative ml-1 group">
                     <span className="cursor-help text-gray-500 text-xs">[i]</span>
@@ -26,7 +26,7 @@ export const Header = ({ handleSliderChange, selectedYear, years }: HeaderProps)
             </div>
 
             {/* Year slider */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 lg:mx-2">
                 <label htmlFor="year-slider" className="text-gray-500 text-sm">Year:</label>
                 <input
                     id="year-slider"

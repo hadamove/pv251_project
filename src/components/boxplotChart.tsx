@@ -40,9 +40,11 @@ export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, la
                     />
                 </div>
             ) : (
-                <p className="text-xs text-gray-500 text-center h-[4rem]">
-                    No data available. 😢
-                </p>
+                <div className="flex flex-col items-center justify-center h-[20vh]">
+                    <p className="text-xs text-gray-500 text-center h-[4rem]">
+                        No data available. 😢
+                    </p>
+                </div>
             )}
         </>
     );
