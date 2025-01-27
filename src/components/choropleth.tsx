@@ -10,6 +10,7 @@ interface ChoroplethProps {
     data: Respondent[];
     language: string;
     onCountrySelect: (country: string) => void;
+    selectedCountry: string | null;
 }
 
 
@@ -30,7 +31,7 @@ const Placeholder = () => {
  * Each country is colored based on its average salary
  * Clicking on a country highlights it and displays its average salary
  */
-export const Choropleth: React.FC<ChoroplethProps> = ({ data, language, onCountrySelect }) => {
+export const Choropleth: React.FC<ChoroplethProps> = ({ data, language, onCountrySelect, selectedCountry }) => {
     const [mapLoaded, setMapLoaded] = useState(false);
 
     // Load the world map when the component mounts
@@ -64,7 +65,7 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, language, onCountr
             <div>
                 <h1 className="text-lg font-medium">Salary by country for {language}</h1>
                 <p className="text-xs text-gray-500">
-                    Pick a country to see the salaries of respondents in that country
+                    {selectedCountry ? 'Currently selected: ' + selectedCountry : 'Pick a country to see the salaries of respondents in that country'}
                 </p>
             </div>
             <ReactECharts

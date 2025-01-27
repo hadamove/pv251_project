@@ -37,11 +37,15 @@ export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, select
     }), [onLanguageSelect]);
 
     return (
-        <div className="flex flex-col items-center">
-            <div>
+        <div className="flex flex-col">
+            <div className="ml-16">
                 <h1 className="text-lg font-medium">Programming language distribution</h1>
                 <p className="text-xs text-gray-500">
-                    Pick a programming language to see the salaries of respondents worldwide
+                    {selectedLanguage ? (
+                        'Currently selected: ' + selectedLanguage
+                    ) : (
+                        'Pick a programming language to see the salaries of respondents worldwide'
+                    )}
                 </p>
             </div>
             <ReactECharts
@@ -112,7 +116,7 @@ const createTreemapOption = (
         trigger: 'item', // Show tooltip when hovering over data points
         formatter: (info: any) => {
             const percentage = ((info.value / totalCount) * 100).toFixed(1);
-            return `${info.name}: ${info.value} (${percentage}%)`;
+            return `${info.name}: ${percentage}%`;
         },
         textStyle: {
             fontFamily: 'PPSupplyMono',
@@ -133,7 +137,9 @@ const createTreemapOption = (
                     return `${params.name}\n${percentage}%`;
                 },
                 fontFamily: 'PPSupplyMono',
-                color: '#1f2937'
+                color: '#1f2937',
+                fontSize: 10,
+                ellipsis: ''
             },
             // Disable panning and zooming
             roam: false,

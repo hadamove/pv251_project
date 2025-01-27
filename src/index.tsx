@@ -112,6 +112,7 @@ const App = () => {
                                 data={languageFilteredData}
                                 language={selectedLanguage}
                                 onCountrySelect={onCountrySelect}
+                                selectedCountry={selectedCountry}
                             />
                         </div>
                     )}

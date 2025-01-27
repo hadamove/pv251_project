@@ -134,12 +134,12 @@ const createBoxplotOption = (binData: BinData[], color: string) => ({
         formatter: (params: any) => {
             if (params.seriesType === 'boxplot') {
                 return `Years of Experience: ${params.name}<br/>` +
-                    `Max: $${params.data[5].toLocaleString()}<br/>` +
-                    `Q₀.₇₅: $${params.data[4].toLocaleString()}<br/>` +
-                    `Med: $${params.data[3].toLocaleString()}<br/>` +
-                    `Q₀.₂₅: $${params.data[2].toLocaleString()}<br/>` +
-                    `Min: $${params.data[1].toLocaleString()}<br/>` +
-                    `n: ${binData[params.dataIndex].count}`;
+                    `Max: $${Math.round(params.data[5]).toLocaleString()}<br/>` +
+                    `Q₀.₇₅: $${Math.round(params.data[4]).toLocaleString()}<br/>` +
+                    `Med: $${Math.round(params.data[3]).toLocaleString()}<br/>` +
+                    `Q₀.₂₅: $${Math.round(params.data[2]).toLocaleString()}<br/>` +
+                    `Min: $${Math.round(params.data[1]).toLocaleString()}<br/>` +
+                    `Sample Size: ${binData[params.dataIndex].count}`;
             }
             return '';
         }
@@ -163,7 +163,6 @@ const createBoxplotOption = (binData: BinData[], color: string) => ({
     yAxis: {
         type: 'value', // Continuous numerical values for salary
         name: 'Salary ($)',
-        max: 200000,
         axisLabel: {
             formatter: (value: number) => `$${value.toLocaleString()}`, // Format salary with $ and commas
             fontFamily: 'PPSupplyMono',
