@@ -38,7 +38,7 @@ const App = () => {
     // Load CSV data when component mounts
     useEffect(() => {
         const loadData = async () => {
-            const data = await loadCSVData('data/cleaned/merged.csv');
+            const data = await loadCSVData('src/assets/data.csv');
             setCsvData(data);
         };
         loadData();
