@@ -18,7 +18,7 @@ import { geoJsonNameToIsoCode } from './components/utils';
 const App = () => {
     // State for storing and filtering data
     const [csvData, setCsvData] = useState<Respondent[]>([]);
-    const [selectedYear, setSelectedYear] = useState<number>(2016);
+    const [selectedYear, setSelectedYear] = useState<number>(2017);
     const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
 
@@ -33,7 +33,7 @@ const App = () => {
     }, []);
 
     // Available years in the dataset
-    const years = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
+    const years = [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
 
     // Load CSV data when component mounts
     useEffect(() => {
@@ -73,10 +73,12 @@ const App = () => {
 
     return (
         <>
-            {/* Fixed year selection slider */}
+            {/* Floating on top of the page */}
             <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center gap-4 py-4 bg-white shadow-md">
                 <div className="flex items-center mr-8">
+                    {/* Header */}
                     <h1 className="text-lg font-medium">Programmer salaries over years</h1>
+                    {/* Info tooltip */}
                     <div className="relative ml-2 group">
                         <span className="cursor-help text-gray-500 text-sm">[i]</span>
                         <div className="absolute left-0 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity">
@@ -86,6 +88,8 @@ const App = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Year slider */}
                 <label htmlFor="year-slider" className="text-gray-500">Year:</label>
                 <input
                     id="year-slider"
@@ -100,45 +104,49 @@ const App = () => {
             </div>
 
             {/* Main content with padding to account for fixed slider */}
-            <div className={`mx-auto px-4 pt-16 w-[48rem] rounded-lg bg-white text-gray-800`}>
-                <div>
-                    <div className="flex items-center justify-center">
-                        <h1 className="text-lg font-medium">Programming language distribution</h1>
-                    </div>
-                    <Treemap
-                        data={yearFilteredData}
-                        onLanguageSelect={onLanguageSelect}
-                        selectedLanguage={selectedLanguage}
-                    />
-                </div>
+            <div className="pt-16 px-4">
+                <div className="flex">
+                    {/* Left column: Treemap and Boxplot */}
+                    <div className="flex flex-col items-center w-[48rem]">
+                        <div className="flex flex-col items-center mb-8">
+                            <div>
+                                <h1 className="text-lg font-medium">Programming language distribution</h1>
+                                <p className="text-xs text-gray-500">
+                                    Pick a programming language to see the salaries of respondents worldwide
+                                </p>
+                            </div>
+                            <Treemap
+                                data={yearFilteredData}
+                                onLanguageSelect={onLanguageSelect}
+                                selectedLanguage={selectedLanguage}
+                            />
+                        </div>
 
-                {/* Choropleth map showing geographical distribution (visible when language selected) */}
-                {selectedLanguage && (
-                    <div className="mb-8">
-                        <div className="flex items-center justify-center">
+                        {/* Salary boxplot (visible when both language and country selected) */}
+                        {selectedLanguage && selectedCountry && (
+                            <div className="flex flex-col items-center">
+                                <h1 className="text-lg font-medium">Salary by years of experience for {selectedLanguage} in {selectedCountry}</h1>
+                                <SalaryBoxplotChart
+                                    data={countryFilteredData}
+                                    language={selectedLanguage}
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Right column: Choropleth */}
+                    {selectedLanguage && (
+                        <div className="flex flex-col items-center w-[48rem]">
                             <h1 className="text-lg font-medium">Salary by country for {selectedLanguage}</h1>
+                            <Choropleth
+                                data={languageFilteredData}
+                                language={selectedLanguage}
+                                onCountrySelect={onCountrySelect}
+                            />
                         </div>
-                        <Choropleth
-                            data={languageFilteredData}
-                            language={selectedLanguage}
-                            onCountrySelect={onCountrySelect}
-                        />
-                    </div>
-                )}
-
-                {/* Salary boxplot (visible when both language and country selected) */}
-                {selectedLanguage && selectedCountry && (
-                    <div className="mb-8">
-                        <div className="flex items-center justify-center">
-                            <h1 className="text-lg font-medium">Salary by years of experience for {selectedLanguage} in {selectedCountry}</h1>
-                        </div>
-                        <SalaryBoxplotChart
-                            data={countryFilteredData}
-                            language={selectedLanguage}
-                        />
-                    </div>
-                )}
-            </div >
+                    )}
+                </div>
+            </div>
         </>
     );
 };

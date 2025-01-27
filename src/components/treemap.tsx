@@ -39,7 +39,7 @@ export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, select
     return (
         <ReactECharts
             option={option}
-            style={{ height: '24rem', width: '48rem' }}
+            style={{ height: '20rem', width: '40rem' }}
             onEvents={onEvents}
             showLoading={data.length === 0}
             loadingOption={{

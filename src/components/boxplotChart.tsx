@@ -30,7 +30,7 @@ export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, la
     return (
         <ReactECharts
             option={option}
-            style={{ height: '24rem', width: '48rem' }}
+            style={{ height: '20rem', width: '36rem' }}
             notMerge={true}
         />
     );
@@ -85,8 +85,10 @@ const createBins = (): { min: number; max: number; salaries: number[] }[] => {
     return [
         { min: 0, max: 2, salaries: [] },
         { min: 2, max: 4, salaries: [] },
-        { min: 4, max: 8, salaries: [] },
-        { min: 8, max: 16, salaries: [] },
+        { min: 4, max: 6, salaries: [] },
+        { min: 6, max: 8, salaries: [] },
+        { min: 8, max: 12, salaries: [] },
+        { min: 12, max: 16, salaries: [] },
         { min: 16, max: Infinity, salaries: [] }
     ];
 };
@@ -156,6 +158,7 @@ const createBoxplotOption = (binData: BinData[], color: string) => ({
     yAxis: {
         type: 'value', // Continuous numerical values for salary
         name: 'Salary ($)',
+        max: 200000,
         axisLabel: {
             formatter: (value: number) => `$${value.toLocaleString()}`, // Format salary with $ and commas
             fontFamily: 'PPSupplyMono',
