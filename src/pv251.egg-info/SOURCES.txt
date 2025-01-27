@@ -1,7 +1,0 @@
-README.md
-pyproject.toml
-src/pv251.egg-info/PKG-INFO
-src/pv251.egg-info/SOURCES.txt
-src/pv251.egg-info/dependency_links.txt
-src/pv251.egg-info/requires.txt
-src/pv251.egg-info/top_level.txt
