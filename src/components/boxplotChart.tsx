@@ -7,16 +7,16 @@ import { darkenColor, getColorForLanguage } from './utils';
 interface SalaryBoxplotChartProps {
     data: Respondent[];
     language: string;
+    country: string;
 }
 
 /**
  * Component that renders a boxplot chart showing salary distribution by years of experience
  * Data is binned into experience ranges and displays salary statistics (min, Q1, median, Q3, max)
  */
-export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, language }) => {
+export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, language, country }) => {
     // Process data into bins based on years of experience
     const binData = useMemo(() => {
-        const maxExperience = Math.max(...data.map(d => d.years_of_experience));
         const bins = createBins();
         return fillBinsWithData(data, bins);
     }, [data]);
@@ -28,11 +28,16 @@ export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, la
         [binData, color]);
 
     return (
-        <ReactECharts
-            option={option}
-            style={{ height: '20rem', width: '36rem' }}
-            notMerge={true}
-        />
+        <div className="flex flex-col items-center ml-16">
+            <h1 className="text-lg font-medium mb-8">
+                Salary by Years of Experience for {language} in {country}
+            </h1>
+            <ReactECharts
+                option={option}
+                style={{ height: '20rem', width: '36rem' }}
+                notMerge={true}
+            />
+        </div>
     );
 };
 

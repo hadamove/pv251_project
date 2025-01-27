@@ -37,17 +37,25 @@ export const Treemap: React.FC<TreemapProps> = ({ data, onLanguageSelect, select
     }), [onLanguageSelect]);
 
     return (
-        <ReactECharts
-            option={option}
-            style={{ height: '20rem', width: '40rem' }}
-            onEvents={onEvents}
-            showLoading={data.length === 0}
-            loadingOption={{
-                text: 'Loading csv data (this only happens once)...',
-                fontFamily: 'PPSupplyMono',
-                textColor: '#1f2937'
-            }}
-        />
+        <div className="flex flex-col items-center">
+            <div>
+                <h1 className="text-lg font-medium">Programming language distribution</h1>
+                <p className="text-xs text-gray-500">
+                    Pick a programming language to see the salaries of respondents worldwide
+                </p>
+            </div>
+            <ReactECharts
+                option={option}
+                style={{ height: '24rem', width: '40rem' }}
+                onEvents={onEvents}
+                showLoading={data.length === 0}
+                loadingOption={{
+                    text: 'Loading csv data (this only happens once)...',
+                    fontFamily: 'PPSupplyMono',
+                    textColor: '#1f2937'
+                }}
+            />
+        </div>
     );
 };
 

@@ -58,13 +58,22 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, language, onCountr
     if (!mapLoaded) {
         return <Placeholder />;
     }
+
     return (
-        <ReactECharts
-            option={option}
-            style={{ height: '26rem', width: '100%' }}
-            opts={{ renderer: 'canvas' }}
-            onEvents={onEvents}
-        />
+        <div className="flex flex-col w-full">
+            <div>
+                <h1 className="text-lg font-medium">Salary by country for {language}</h1>
+                <p className="text-xs text-gray-500">
+                    Pick a country to see the salaries of respondents in that country
+                </p>
+            </div>
+            <ReactECharts
+                option={option}
+                style={{ height: '26rem', width: '100%' }}
+                opts={{ renderer: 'canvas' }}
+                onEvents={onEvents}
+            />
+        </div>
     );
 };
 
