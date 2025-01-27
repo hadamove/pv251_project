@@ -104,10 +104,11 @@ const App = () => {
             </div>
 
             {/* Main content with padding to account for fixed slider */}
-            <div className="pt-16 px-4">
+            <div className="pt-20 px-4">
                 <div className="flex">
                     {/* Left column: Treemap and Boxplot */}
                     <div className="flex flex-col items-center w-[48rem]">
+                        {/* Treemap */}
                         <div className="flex flex-col items-center mb-8">
                             <div>
                                 <h1 className="text-lg font-medium">Programming language distribution</h1>
@@ -124,8 +125,8 @@ const App = () => {
 
                         {/* Salary boxplot (visible when both language and country selected) */}
                         {selectedLanguage && selectedCountry && (
-                            <div className="flex flex-col items-center">
-                                <h1 className="text-lg font-medium">Salary by years of experience for {selectedLanguage} in {selectedCountry}</h1>
+                            <div className="flex flex-col items-center ml-16">
+                                <h1 className="text-lg font-medium mb-8">Salary by Years of Experience for {selectedLanguage} in {selectedCountry}</h1>
                                 <SalaryBoxplotChart
                                     data={countryFilteredData}
                                     language={selectedLanguage}
@@ -136,8 +137,13 @@ const App = () => {
 
                     {/* Right column: Choropleth */}
                     {selectedLanguage && (
-                        <div className="flex flex-col items-center w-[48rem]">
-                            <h1 className="text-lg font-medium">Salary by country for {selectedLanguage}</h1>
+                        <div className="flex flex-col w-[48rem]">
+                            <div>
+                                <h1 className="text-lg font-medium">Salary by country for {selectedLanguage}</h1>
+                                <p className="text-xs text-gray-500">
+                                    Pick a country to see the salaries of respondents in that country
+                                </p>
+                            </div>
                             <Choropleth
                                 data={languageFilteredData}
                                 language={selectedLanguage}
