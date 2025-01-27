@@ -5,7 +5,7 @@
     "module": "NodeNext",
     "strict": true,
     "esModuleInterop": true,
-    "outDir": "./dist",
+    "outDir": "docs",
     "rootDir": ".",
     "jsx": "react"
   }
