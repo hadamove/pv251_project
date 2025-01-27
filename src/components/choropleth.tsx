@@ -10,7 +10,6 @@ interface ChoroplethProps {
     data: Respondent[];
     language: string;
     onCountrySelect: (country: string) => void;
-    selectedCountry: string | null;
 }
 
 
@@ -31,7 +30,7 @@ const Placeholder = () => {
  * Each country is colored based on its average salary
  * Clicking on a country highlights it and displays its average salary
  */
-export const Choropleth: React.FC<ChoroplethProps> = ({ data, language, onCountrySelect, selectedCountry }) => {
+export const Choropleth: React.FC<ChoroplethProps> = ({ data, language, onCountrySelect }) => {
     const [mapLoaded, setMapLoaded] = useState(false);
 
     // Load the world map when the component mounts
@@ -61,20 +60,18 @@ export const Choropleth: React.FC<ChoroplethProps> = ({ data, language, onCountr
     }
 
     return (
-        <div className="flex flex-col w-full">
-            <div>
-                <h1 className="text-lg font-medium">Salary by country for {language}</h1>
-                <p className="text-xs text-gray-500">
-                    {selectedCountry ? 'Currently selected: ' + selectedCountry : 'Pick a country to see the salaries of respondents in that country'}
-                </p>
-            </div>
+        <>
+            <h1 className="text-sm sm:text-base">Salary by country for {language}</h1>
+            <p className="text-xs text-gray-500">
+                Pick a country to see the salaries of respondents in that country.
+            </p>
             <ReactECharts
                 option={option}
-                style={{ height: '26rem', width: '100%' }}
+                style={{ height: '30vh', width: '100%' }}
                 opts={{ renderer: 'canvas' }}
                 onEvents={onEvents}
             />
-        </div>
+        </>
     );
 };
 
@@ -143,7 +140,7 @@ const createChoroplethOption = (countryColor: string, chartData: any[]) => ({
             fontFamily: 'PPSupplyMono',
             color: '#1f2937'
         },
-        backgroundColor: '#ffffff',
+        backgroundColor: 'transparent',
         inRange: {
             // Generate color gradient from light to dark version of language color
             color: [lightenColor(countryColor, 100), darkenColor(countryColor, 100)],

@@ -28,22 +28,23 @@ export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, la
         [binData, color]);
 
     return (
-        <div className="flex flex-col ml-16">
-            <h1 className="text-lg font-medium mb-8">
-                Salary by Years of Experience for {language} in {country}
-            </h1>
+        <>
+            <h1 className="text-sm sm:text-base">Annual salary by Years of Experience for {language} in {country}</h1>
             {data.length > 0 ? (
-                <ReactECharts
-                    option={option}
-                    style={{ height: '20rem', width: '100%' }}
-                    notMerge={true}
-                />
+                <div className="px-3">
+
+                    <ReactECharts
+                        option={option}
+                        style={{ height: '30vh', width: '100%' }}
+                        notMerge={true}
+                    />
+                </div>
             ) : (
-                <p className="text-xs text-gray-500">
-                    No data available for this programming language in this country
+                <p className="text-xs text-gray-500 text-center h-[4rem]">
+                    No data available. 😢
                 </p>
             )}
-        </div>
+        </>
     );
 };
 
@@ -81,11 +82,12 @@ const calculateBoxPlotData = (values: number[]): BoxPlotData => {
     const q3Index = Math.floor(sorted.length * 0.75);
 
     return {
-        min: sorted[0],
-        q1: sorted[q1Index],
-        median: sorted[medianIndex],
-        q3: sorted[q3Index],
-        max: sorted[sorted.length - 1]
+        // Also convert salary values to thousands of dollars
+        min: sorted[0] / 1000,
+        q1: sorted[q1Index] / 1000,
+        median: sorted[medianIndex] / 1000,
+        q3: sorted[q3Index] / 1000,
+        max: sorted[sorted.length - 1] / 1000
     };
 };
 
@@ -140,11 +142,11 @@ const createBoxplotOption = (binData: BinData[], color: string) => ({
         formatter: (params: any) => {
             if (params.seriesType === 'boxplot') {
                 return `Years of Experience: ${params.name}<br/>` +
-                    `Max: $${Math.round(params.data[5]).toLocaleString()}<br/>` +
-                    `Q₀.₇₅: $${Math.round(params.data[4]).toLocaleString()}<br/>` +
-                    `Med: $${Math.round(params.data[3]).toLocaleString()}<br/>` +
-                    `Q₀.₂₅: $${Math.round(params.data[2]).toLocaleString()}<br/>` +
-                    `Min: $${Math.round(params.data[1]).toLocaleString()}<br/>` +
+                    `Max: $${Math.round(params.data[5])}k<br/>` +
+                    `Q₀.₇₅: $${Math.round(params.data[4])}k<br/>` +
+                    `Med: $${Math.round(params.data[3])}k<br/>` +
+                    `Q₀.₂₅: $${Math.round(params.data[2])}k<br/>` +
+                    `Min: $${Math.round(params.data[1])}k<br/>` +
                     `Sample Size: ${binData[params.dataIndex].count}`;
             }
             return '';
@@ -168,9 +170,9 @@ const createBoxplotOption = (binData: BinData[], color: string) => ({
     // Configure y-axis showing salary values
     yAxis: {
         type: 'value', // Continuous numerical values for salary
-        name: 'Salary ($)',
+        name: 'Salary ($k)',
         axisLabel: {
-            formatter: (value: number) => `$${value.toLocaleString()}`, // Format salary with $ and commas
+            formatter: (value: number) => `$${value}k`, // Format salary in thousands with k suffix
             fontFamily: 'PPSupplyMono',
             color: '#1f2937'
         },

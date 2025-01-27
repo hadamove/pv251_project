@@ -82,10 +82,10 @@ const App = () => {
             />
 
             {/* Graphs */}
-            <div className="pt-20 px-4">
-                <div className="flex">
-                    {/* Left column: Treemap and Boxplot */}
-                    <div className="flex flex-col">
+            <div className="pt-12 lg:px-16 lg:pt-20">
+                <div className="flex flex-col lg:flex-row">
+                    {/* Left column on large screens, top section on small screens: Treemap and Boxplot */}
+                    <div className="flex flex-col w-full md:w-1/2 pb-8">
                         {/* Treemap */}
                         <Treemap
                             data={yearFilteredData}
@@ -94,6 +94,17 @@ const App = () => {
                         />
 
                         {/* Salary boxplot (visible when both language and country selected) */}
+                        {selectedLanguage && (
+                            <Choropleth
+                                data={languageFilteredData}
+                                language={selectedLanguage}
+                                onCountrySelect={onCountrySelect}
+                            />
+                        )}
+                    </div>
+
+                    {/* Right column on large screens, bottom section on small screens: Choropleth */}
+                    <div className="flex flex-col w-full md:w-1/2">
                         {selectedLanguage && selectedCountry && (
                             <SalaryBoxplotChart
                                 data={countryFilteredData}
@@ -102,18 +113,6 @@ const App = () => {
                             />
                         )}
                     </div>
-
-                    {/* Right column: Choropleth */}
-                    {selectedLanguage && (
-                        <div className="flex flex-col w-[48rem]">
-                            <Choropleth
-                                data={languageFilteredData}
-                                language={selectedLanguage}
-                                onCountrySelect={onCountrySelect}
-                                selectedCountry={selectedCountry}
-                            />
-                        </div>
-                    )}
                 </div>
             </div>
         </>
