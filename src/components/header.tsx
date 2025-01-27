@@ -13,7 +13,7 @@ export const Header = ({ handleSliderChange, selectedYear, years }: HeaderProps)
     return (
         <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center gap-4 py-4 bg-white shadow-md">
             <div className="flex items-center mr-8">
-                <h1 className="text-lg font-medium">Programmer salaries over years</h1>
+                <h1 className="text-lg font-medium px-4">Programmer salaries over years</h1>
                 {/* Info tooltip */}
                 <div className="relative ml-2 group">
                     <span className="cursor-help text-gray-500 text-sm">[i]</span>

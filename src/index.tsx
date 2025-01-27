@@ -85,15 +85,13 @@ const App = () => {
             <div className="pt-20 px-4">
                 <div className="flex">
                     {/* Left column: Treemap and Boxplot */}
-                    <div className="flex flex-col items-center w-[48rem]">
+                    <div className="flex flex-col">
                         {/* Treemap */}
-                        <div className="mb-8">
-                            <Treemap
-                                data={yearFilteredData}
-                                onLanguageSelect={onLanguageSelect}
-                                selectedLanguage={selectedLanguage}
-                            />
-                        </div>
+                        <Treemap
+                            data={yearFilteredData}
+                            onLanguageSelect={onLanguageSelect}
+                            selectedLanguage={selectedLanguage}
+                        />
 
                         {/* Salary boxplot (visible when both language and country selected) */}
                         {selectedLanguage && selectedCountry && (
