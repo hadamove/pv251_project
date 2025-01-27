@@ -31,14 +31,11 @@ export const SalaryBoxplotChart: React.FC<SalaryBoxplotChartProps> = ({ data, la
         <>
             <h1 className="text-sm sm:text-base">Annual salary by Years of Experience for {language} in {country}</h1>
             {data.length > 0 ? (
-                <div className="px-3">
-
-                    <ReactECharts
-                        option={option}
-                        style={{ height: '30vh', width: '100%' }}
-                        notMerge={true}
-                    />
-                </div>
+                <ReactECharts
+                    option={option}
+                    style={{ height: '30vh', width: '100%' }}
+                    notMerge={true}
+                />
             ) : (
                 <div className="flex flex-col items-center justify-center h-[20vh]">
                     <p className="text-xs text-gray-500 text-center h-[4rem]">
